@@ -29,3 +29,14 @@ def clubs_fixture():
     }
 ]
     return data
+
+@pytest.fixture
+def club_fixture():
+    data = [
+    {
+        "name":"Simply Lift",
+        "email":"john@gudlft.ok",
+        "points":"13"
+    }
+]
+    return data

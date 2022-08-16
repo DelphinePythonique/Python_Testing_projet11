@@ -63,3 +63,16 @@ def test_should_return_clubs_with_email_ok(clubs_fixture, mocker):
         "points":"13"
     }]
     assert clubs_with_email("john@gudlft.ko") == []
+
+def test_should_show_summary_ok(client, club_fixture, mocker):
+    mocker.patch('server.clubs_with_email', return_value=club_fixture)
+    email = "john@gudlft.ok"
+    response = client.post("/showSummary", data={'email': email})
+    data = response.data.decode("utf-8")
+    assert response.status_code == 200
+
+    mocker.patch('server.clubs_with_email', return_value=[])
+    email = "john@gudlft.ok"
+    response = client.post("/showSummary", data={'email': email})
+    data = response.data.decode("utf-8")
+    assert response.status_code == 302
