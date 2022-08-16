@@ -56,10 +56,10 @@ def test_should_return_index_template(client):
     )
 
 def test_should_return_clubs_with_email_ok(clubs_fixture, mocker):
-    mocker.patch('server.clubs', return_value=clubs_fixture)
-    print(clubs)
-    assert clubs_with_email("john@gudlft.co") == {
+    mocker.patch('server.clubs', clubs_fixture)
+    assert clubs_with_email("john@gudlft.ok") == [{
         "name":"Simply Lift",
-        "email":"john@gudlft.co",
+        "email":"john@gudlft.ok",
         "points":"13"
-    }
+    }]
+    assert clubs_with_email("john@gudlft.ko") == []

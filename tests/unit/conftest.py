@@ -15,7 +15,7 @@ def clubs_fixture():
     data = [
     {
         "name":"Simply Lift",
-        "email":"john@gudlft.co",
+        "email":"john@gudlft.ok",
         "points":"13"
     },
     {
