@@ -1,11 +1,14 @@
 import json
+from json import JSONDecodeError
+
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
 def loadClubs():
-    with open("clubs.json") as c:
-        listOfClubs = json.load(c)["clubs"]
-        return listOfClubs
+     with open("clubs.json") as c:
+           listOfClubs = json.load(c)["clubs"]
+           return listOfClubs
+
 
 
 def loadCompetitions():
@@ -21,6 +24,9 @@ competitions = loadCompetitions()
 clubs = loadClubs()
 
 
+def clubs_with_email(email):
+    return [club for club in clubs if club["email"] == email]
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -28,9 +34,9 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    clubs_with_email = [club for club in clubs if club["email"] == request.form["email"]]
-    if len(clubs_with_email) > 0:
-        club = clubs_with_email[0]
+    clubs = clubs_with_email(request)
+    if len(clubs) > 0:
+        club = clubs[0]
         return render_template("welcome.html", club=club, competitions=competitions)
     else:
         flash("email not existing")
@@ -68,3 +74,7 @@ def purchasePlaces():
 @app.route("/logout")
 def logout():
     return redirect(url_for("index"))
+
+
+
+
