@@ -34,7 +34,7 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    clubs = clubs_with_email(request)
+    clubs = clubs_with_email(request.post['email'])
     if len(clubs) > 0:
         club = clubs[0]
         return render_template("welcome.html", club=club, competitions=competitions)
