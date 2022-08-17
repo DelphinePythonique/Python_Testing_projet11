@@ -3,3 +3,4 @@ black==19.10b0
 pytest-cov==2.8.1
 pytest-flask==1.0.0
 pytest-mock==3.0.0
+jsonschema==3.2.0
