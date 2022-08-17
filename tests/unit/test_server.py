@@ -1,40 +1,24 @@
 import os
 
+from flask import get_flashed_messages
+from jsonschema import validate
 import pytest
 from pytest_mock import mocker
 
-from server import loadClubs, clubs_with_email, clubs
+from server import loadClubs, clubs_with_email
 
 
-def test_should_load_clubs():
-    if os.path.exists("clubs.json"):
-        print('existe')
-        clubs = loadClubs()
-        club = clubs[0]
+class TestServerClass:
+    def test_should_index_ok(self, client):
+        response = client.get("/")
+        assert response.status_code == 200
 
-        assert isinstance(club, dict)
-        assert ("name" in club) == True
-        assert ("email" in club) == True
-        assert ("points" in club) == True
-        assert isinstance(int(club["points"]), int) == True
-
-    if not os.path.exists("clubs.json"):
-        with pytest.raises(FileNotFoundError):
-            print('not existe')
-            loadClubs()
-
-def test_should_status_code_ok(client):
-    response = client.get("/")
-    assert response.status_code == 200
-
-
-def test_should_return_index_template(client):
-    response = client.get("/")
-    data = response.data.decode("utf-8")
-    print(data)
-    assert (
-        data
-        == """<html lang="en">
+        response = client.get("/")
+        data = response.data.decode("utf-8")
+        print(data)
+        assert (
+            data
+            == """<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,26 +37,59 @@ def test_should_return_index_template(client):
   
 </body>
 </html>"""
-    )
+        )
 
-def test_should_return_clubs_with_email_ok(clubs_fixture, mocker):
-    mocker.patch('server.clubs', clubs_fixture)
-    assert clubs_with_email("john@gudlft.ok") == [{
-        "name":"Simply Lift",
-        "email":"john@gudlft.ok",
-        "points":"13"
-    }]
-    assert clubs_with_email("john@gudlft.ko") == []
+    def test_should_load_clubs(self, clubs_schema_fixture):
+        assert os.path.exists("clubs.json")
+        clubs = loadClubs()
 
-def test_should_show_summary_ok(client, club_fixture, mocker):
-    mocker.patch('server.clubs_with_email', return_value=club_fixture)
-    email = "john@gudlft.ok"
-    response = client.post("/showSummary", data={'email': email})
-    data = response.data.decode("utf-8")
-    assert response.status_code == 200
+        assert validate(instance=clubs, schema=clubs_schema_fixture) == None
 
-    mocker.patch('server.clubs_with_email', return_value=[])
-    email = "john@gudlft.ok"
-    response = client.post("/showSummary", data={'email': email})
-    data = response.data.decode("utf-8")
-    assert response.status_code == 302
+    def test_should_return_clubs_with_email_ok(self, clubs_fixture, mocker):
+        assert clubs_with_email(clubs_fixture, "john@gudlft.ok") == [
+            {"name": "Simply Lift", "email": "john@gudlft.ok", "points": "13"}
+        ]
+
+    def test_should_return_clubs_with_email_ko(self, clubs_fixture, mocker):
+        assert clubs_with_email(clubs_fixture, "john@gudlft.ko") == []
+
+    def test_should_show_summary_with_email_ok(self, client, clubs_fixture, mocker):
+        mocker.patch("server.loadClubs", return_value=clubs_fixture)
+        email = "john@gudlft.ok"
+        response = client.post("/showSummary", data={"email": email})
+
+        assert response.status_code == 200
+
+        assert b"john@gudlft.ok" in response.data
+        assert b"Competitions:" in response.data
+        assert b"Spring Festival" in response.data
+        assert b"Date: 2020-03-27 10:00:00" in response.data
+        assert b"Number of Places:" in response.data
+        assert (
+            b'25\n            \n            <a href="/book/Spring%20Festival/Simply%20Lift">Book Places</a>'
+            in response.data
+        )
+
+        assert b"Fall Classic" in response.data
+        assert b"Date: 2020-10-22 13:30:00" in response.data
+        assert b"Number of Places:" in response.data
+        assert (
+            b'13\n            \n            <a href="/book/Fall%20Classic/Simply%20Lift">Book Places</a>'
+            in response.data
+        )
+
+    def test_should_show_summary_with_email_ko(self, client, clubs_fixture, mocker):
+
+        mocker.patch("server.loadClubs", return_value=[])
+        email = "john@gudlft.ok"
+        response = client.post("/showSummary", data={"email": email})
+
+        assert response.status_code == 302
+        print(response.data)
+        assert (
+            b'You should be redirected automatically to target URL: <a href="/">/</a>'
+            in response.data
+        )
+
+        flash_messages = get_flashed_messages()
+        assert "email not existing" in flash_messages

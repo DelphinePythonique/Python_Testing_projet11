@@ -21,10 +21,11 @@ app = Flask(__name__)
 app.secret_key = "something_special"
 
 competitions = loadCompetitions()
-clubs = loadClubs()
 
 
-def clubs_with_email(email):
+
+def clubs_with_email(clubs, email):
+
     return [club for club in clubs if club["email"] == email]
 
 @app.route("/")
@@ -34,9 +35,10 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    clubs = clubs_with_email(request.form['email'])
-    if len(clubs) > 0:
-        club = clubs[0]
+    clubs = loadClubs()
+    clubs_selected = clubs_with_email(clubs, request.form['email'])
+    if len(clubs_selected) > 0:
+        club = clubs_selected[0]
         return render_template("welcome.html", club=club, competitions=competitions)
     else:
         flash("email not existing")
@@ -45,6 +47,7 @@ def showSummary():
 
 @app.route("/book/<competition>/<club>")
 def book(competition, club):
+    clubs = loadClubs()
     foundClub = [c for c in clubs if c["name"] == club][0]
     foundCompetition = [c for c in competitions if c["name"] == competition][0]
     if foundClub and foundCompetition:
@@ -58,6 +61,7 @@ def book(competition, club):
 
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
+    clubs = loadClubs()
     competition = [c for c in competitions if c["name"] == request.form["competition"]][
         0
     ]
