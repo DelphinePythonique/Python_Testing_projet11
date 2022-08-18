@@ -1,6 +1,9 @@
 import pytest
+from locust import HttpUser, between
 
 from server import app as myapp
+from tests.performance.locustfile import ServerPerfTest
+
 
 @pytest.fixture
 def client():
