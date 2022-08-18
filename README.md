@@ -42,10 +42,22 @@
     * competitions.json - list of competitions
     * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
 
-5. Testing
+   1. Testing
 
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
+       You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
 
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+       We also like to show how well we're testing, so there's a module called 
+       [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+    
+       For functional test, Add web driver , I use Chromium and Chromium webdriver and
+       I put webdriver into my virtualenv bin directory
+       
+       To test, in prompt enter the following code: 
+      ``` bash
+           pytest  --driver Chrome --html pytest_report.html 
+      ``` 
+    
+       To know coverage add --cov  and --cov-report html for report
+      
+
 
