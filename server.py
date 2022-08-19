@@ -1,14 +1,12 @@
 import json
-from json import JSONDecodeError
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
 def loadClubs():
-     with open("clubs.json") as c:
-           listOfClubs = json.load(c)["clubs"]
-           return listOfClubs
-
+    with open("clubs.json") as c:
+        listOfClubs = json.load(c)["clubs"]
+        return listOfClubs
 
 
 def loadCompetitions():
@@ -23,10 +21,10 @@ app.secret_key = "something_special"
 competitions = loadCompetitions()
 
 
-
 def clubs_with_email(clubs, email):
 
     return [club for club in clubs if club["email"] == email]
+
 
 @app.route("/")
 def index():
@@ -36,7 +34,7 @@ def index():
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
     clubs = loadClubs()
-    clubs_selected = clubs_with_email(clubs, request.form['email'])
+    clubs_selected = clubs_with_email(clubs, request.form["email"])
     if len(clubs_selected) > 0:
         club = clubs_selected[0]
         return render_template("welcome.html", club=club, competitions=competitions)
@@ -78,7 +76,3 @@ def purchasePlaces():
 @app.route("/logout")
 def logout():
     return redirect(url_for("index"))
-
-
-
-

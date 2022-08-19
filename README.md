@@ -58,6 +58,10 @@
       ``` 
     
        To know coverage add --cov  and --cov-report html for report
+   2. Flake8
+      ```bash
+         flake8 --format=html --htmldir=flake-report --exclude=env
+       ```
       
 
 

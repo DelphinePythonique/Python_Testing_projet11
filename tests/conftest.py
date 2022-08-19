@@ -1,8 +1,9 @@
 import pytest
-from locust import HttpUser, between
 
 from server import app as myapp
-from tests.performance.locustfile import ServerPerfTest
+
+EMAIL_OK = "john@simplylift.co"
+EMAIL_KO = "john@gudlft.ko"
 
 
 @pytest.fixture
@@ -12,15 +13,12 @@ def client():
     with app.test_client() as client:
         yield client
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture(scope="session")
 def app():
     app = myapp
-    app.config.from_object({
-        "TESTING": True,
-
-    })
+    app.config.from_object({"TESTING": True})
     return app
-
 
 
 @pytest.fixture

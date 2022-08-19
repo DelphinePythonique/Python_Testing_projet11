@@ -2,8 +2,7 @@ import os
 
 from flask import get_flashed_messages
 from jsonschema import validate
-import pytest
-from pytest_mock import mocker
+
 
 from server import loadClubs, clubs_with_email
 
@@ -14,36 +13,17 @@ class TestServerClass:
         assert response.status_code == 200
 
         response = client.get("/")
-        data = response.data.decode("utf-8")
-        print(data)
-        assert (
-            data
-            == """<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUDLFT Registration</title>
-</head>
-<body>
-    <h1>Welcome to the GUDLFT Registration Portal!</h1>
-    
-            
-    Please enter your secretary email to continue:
-    <form action="showSummary" method="post">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
-        <button type="submit">Enter</button>
-    </form>
-  
-</body>
-</html>"""
-        )
+
+        assert b"Welcome to the GUDLFT Registration Portal!" in response.data
+        assert b'<label for="email">Email:</label>' in response.data
+        assert b'<input type="email" name="email" id=""/>' in response.data
+        assert b'<button type="submit">Enter</button>' in response.data
 
     def test_should_load_clubs(self, clubs_schema_fixture):
         assert os.path.exists("clubs.json")
         clubs = loadClubs()
 
-        assert validate(instance=clubs, schema=clubs_schema_fixture) == None
+        assert validate(instance=clubs, schema=clubs_schema_fixture) is None
 
     def test_should_return_clubs_with_email_ok(self, clubs_fixture, mocker):
         assert clubs_with_email(clubs_fixture, "john@gudlft.ok") == [
