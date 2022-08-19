@@ -1,0 +1,223 @@
+[1660822936,235][INFO]: Starting ChromeDriver 104.0.5112.79 (3cf3e8c8a07d104b9e1260c910efb8f383285dc5-refs/branch-heads/5112@{#1307}) on port 44653
+[1660822936,235][INFO]: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[1660822937,244][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND InitSession {
+   "capabilities": {
+      "alwaysMatch": {
+         "browserName": "chrome",
+         "goog:chromeOptions": {
+            "args": [  ],
+            "extensions": [  ]
+         },
+         "pageLoadStrategy": "normal",
+         "platformName": "any"
+      },
+      "firstMatch": [ {
+      } ]
+   },
+   "desiredCapabilities": {
+      "browserName": "chrome",
+      "goog:chromeOptions": {
+         "args": [  ],
+         "extensions": [  ]
+      },
+      "pageLoadStrategy": "normal",
+      "platform": "ANY",
+      "version": ""
+   }
+}
+[1660822937,244][INFO]: Populating Preferences file: {
+   "alternate_error_pages": {
+      "enabled": false
+   },
+   "autofill": {
+      "enabled": false
+   },
+   "browser": {
+      "check_default_browser": false
+   },
+   "distribution": {
+      "import_bookmarks": false,
+      "import_history": false,
+      "import_search_engine": false,
+      "make_chrome_default_for_user": false,
+      "skip_first_run_ui": true
+   },
+   "dns_prefetching": {
+      "enabled": false
+   },
+   "profile": {
+      "content_settings": {
+         "pattern_pairs": {
+            "https://*,*": {
+               "media-stream": {
+                  "audio": "Default",
+                  "video": "Default"
+               }
+            }
+         }
+      },
+      "default_content_setting_values": {
+         "geolocation": 1
+      },
+      "default_content_settings": {
+         "geolocation": 1,
+         "mouselock": 1,
+         "notifications": 1,
+         "popups": 1,
+         "ppapi-broker": 1
+      },
+      "password_manager_enabled": false
+   },
+   "safebrowsing": {
+      "enabled": false
+   },
+   "search": {
+      "suggest_enabled": false
+   },
+   "translate": {
+      "enabled": false
+   }
+}
+[1660822937,244][INFO]: Populating Local State file: {
+   "background_mode": {
+      "enabled": false
+   },
+   "ssl": {
+      "rev_checking": {
+         "enabled": false
+      }
+   }
+}
+[1660822937,245][INFO]: Launching chrome: /usr/bin/chromium --allow-pre-commit-input --disable-background-networking --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --enable-automation --enable-blink-features=ShadowDOMV0 --enable-logging --log-level=0 --no-first-run --no-service-autorun --password-store=basic --remote-debugging-port=0 --test-type=webdriver --use-mock-keychain --user-data-dir=/tmp/.com.google.Chrome.EL6zCj data:,
+[1660822937,634][INFO]: resolved localhost to ["::1","127.0.0.1"]
+[1660822937,667][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE InitSession {
+   "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "chrome",
+      "browserVersion": "104.0.5112.79",
+      "chrome": {
+         "chromedriverVersion": "104.0.5112.79 (3cf3e8c8a07d104b9e1260c910efb8f383285dc5-refs/branch-heads/5112@{#1307})",
+         "userDataDir": "/tmp/.com.google.Chrome.EL6zCj"
+      },
+      "goog:chromeOptions": {
+         "debuggerAddress": "localhost:43789"
+      },
+      "networkConnectionEnabled": false,
+      "pageLoadStrategy": "normal",
+      "platformName": "linux",
+      "proxy": {
+      },
+      "setWindowRect": true,
+      "strictFileInteractability": false,
+      "timeouts": {
+         "implicit": 0,
+         "pageLoad": 300000,
+         "script": 30000
+      },
+      "unhandledPromptBehavior": "dismiss and notify",
+      "webauthn:extension:credBlob": true,
+      "webauthn:extension:largeBlob": true,
+      "webauthn:virtualAuthenticators": true
+   },
+   "sessionId": "6932c8551794aaa0d247052f76e84583"
+}
+[1660822937,673][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetUrl {
+}
+[1660822937,673][INFO]: Waiting for pending navigations...
+[1660822937,696][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,699][INFO]: Waiting for pending navigations...
+[1660822937,700][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,700][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetUrl "data:,"
+[1660822937,701][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND Screenshot {
+}
+[1660822937,702][INFO]: Waiting for pending navigations...
+[1660822937,702][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,703][INFO]: resolved localhost to ["::1","127.0.0.1"]
+[1660822937,860][INFO]: Waiting for pending navigations...
+[1660822937,862][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,862][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE Screenshot "iVBORw0KGgoAAAANSUhEUgAAA4UAAANbCAYAAAD15Dr/AAABKGlDQ1BTa2lhAAAokX2RPUvDUBSGH0sXRScFHRyCkw5qW2O0IIiptbi2Cq1OaZoWtY0hjR+/QfwN4qSr/8HFURCc/BHi4Cb4xiIJSD2He89z3/t5zoXMDLJsDnp+FFYrtlFvHBikzHH7AcNtBD5f4..."
+[1660822937,864][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetSource {
+}
+[1660822937,864][INFO]: Waiting for pending navigations...
+[1660822937,865][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,868][INFO]: Waiting for pending navigations...
+[1660822937,869][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,869][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetSource "\u003Chtml>\u003Chead>\u003C/head>\u003Cbody>\u003C/body>\u003C/html>"
+[1660822937,871][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetLogTypes {
+}
+[1660822937,871][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetLogTypes [ "browser", "driver" ]
+[1660822937,873][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetLog {
+   "type": "browser"
+}
+[1660822937,873][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetLog [  ]
+[1660822937,874][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetLog {
+   "type": "driver"
+}
+[1660822937,875][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetLog [  ]
+[1660822937,878][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND Navigate {
+   "url": "http://localhost:5002"
+}
+[1660822937,878][INFO]: Waiting for pending navigations...
+[1660822937,878][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,967][INFO]: Waiting for pending navigations...
+[1660822937,970][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,970][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE Navigate
+[1660822937,972][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetTitle {
+}
+[1660822937,972][INFO]: Waiting for pending navigations...
+[1660822937,973][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,976][INFO]: Waiting for pending navigations...
+[1660822937,977][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,977][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetTitle "GUDLFT Registration"
+[1660822937,978][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND FindElement {
+   "using": "css selector",
+   "value": "[name=\"email\"]"
+}
+[1660822937,978][INFO]: Waiting for pending navigations...
+[1660822937,982][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,998][INFO]: Waiting for pending navigations...
+[1660822937,999][INFO]: Done waiting for pending navigations. Status: ok
+[1660822937,999][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE FindElement {
+   "element-6066-11e4-a52e-4f735466cecf": "4fc142d5-d56a-4f32-bb32-6d5ba4104b44"
+}
+[1660822938,000][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND ClearElement {
+   "id": "4fc142d5-d56a-4f32-bb32-6d5ba4104b44"
+}
+[1660822938,000][INFO]: Waiting for pending navigations...
+[1660822938,001][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,022][INFO]: 
+	=== NOTE: ===
+	The Clear command in ChromeDriver 2.43 and above
+	has been updated to conform to the current standard,
+	including raising blur event after clearing.
+
+[1660822938,030][INFO]: Waiting for pending navigations...
+[1660822938,031][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,031][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE ClearElement
+[1660822938,032][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND TypeElement {
+   "id": "4fc142d5-d56a-4f32-bb32-6d5ba4104b44",
+   "text": "john@simplylift.co",
+   "value": [ "j", "o", "h", "n", "@", "s", "i", "m", "p", "l", "y", "l", "i", "f", "t", ".", "c", "o" ]
+}
+[1660822938,032][INFO]: Waiting for pending navigations...
+[1660822938,033][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,079][INFO]: Waiting for pending navigations...
+[1660822938,082][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,082][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE TypeElement
+[1660822938,083][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND TypeElement {
+   "id": "4fc142d5-d56a-4f32-bb32-6d5ba4104b44",
+   "text": "",
+   "value": [ "" ]
+}
+[1660822938,083][INFO]: Waiting for pending navigations...
+[1660822938,084][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,110][INFO]: Waiting for pending navigations...
+[1660822938,157][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,157][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE TypeElement
+[1660822938,159][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND GetTitle {
+}
+[1660822938,159][INFO]: Waiting for pending navigations...
+[1660822938,159][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,161][INFO]: Waiting for pending navigations...
+[1660822938,162][INFO]: Done waiting for pending navigations. Status: ok
+[1660822938,162][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE GetTitle "Summary | GUDLFT Registration"

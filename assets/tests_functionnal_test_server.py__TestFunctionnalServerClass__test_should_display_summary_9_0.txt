@@ -1,0 +1,39 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary | GUDLFT Registration</title>
+</head>
+<body>
+        <h2>Welcome, john@simplylift.co </h2><a href="/logout">Logout</a>
+
+    
+    
+    Points available: 13
+    <h3>Competitions:</h3>
+    <ul>
+        
+        <li>
+            Spring Festival<br>
+            Date: 2020-03-27 10:00:00<br>
+            Number of Places: 25
+            
+            <a href="/book/Spring%20Festival/Simply%20Lift">Book Places</a>
+            
+        </li>
+        <hr>
+        
+        <li>
+            Fall Classic<br>
+            Date: 2020-10-22 13:30:00<br>
+            Number of Places: 13
+            
+            <a href="/book/Fall%20Classic/Simply%20Lift">Book Places</a>
+            
+        </li>
+        <hr>
+        
+    </ul>
+    
+
+
+</body></html>
