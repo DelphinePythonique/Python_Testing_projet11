@@ -6,7 +6,7 @@ from tests.conftest import EMAIL_OK, EMAIL_KO
 
 
 @pytest.mark.usefixtures("live_server")
-class TestFunctionnalServerClass:
+class TestFunctionnalServerDisplayClubClass:
     @pytest.mark.nondestructive
     def test_should_display_summary(self, live_server, selenium):
         selenium.get("http://localhost:5002")
