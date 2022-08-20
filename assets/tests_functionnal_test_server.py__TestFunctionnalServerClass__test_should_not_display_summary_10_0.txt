@@ -1,1 +1,1 @@
-2022-08-18 11:42:20.085000 SEVERE - http://localhost:5002/favicon.ico - Failed to load resource: the server responded with a status of 404 (NOT FOUND)
+2022-08-20 09:35:50.323000 SEVERE - http://localhost:5002/favicon.ico - Failed to load resource: the server responded with a status of 404 (NOT FOUND)

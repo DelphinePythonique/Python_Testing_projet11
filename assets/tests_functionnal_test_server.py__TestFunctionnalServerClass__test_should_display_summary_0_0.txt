@@ -1,6 +1,6 @@
-[1660822936,235][INFO]: Starting ChromeDriver 104.0.5112.79 (3cf3e8c8a07d104b9e1260c910efb8f383285dc5-refs/branch-heads/5112@{#1307}) on port 44653
-[1660822936,235][INFO]: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
-[1660822937,244][INFO]: [6932c8551794aaa0d247052f76e84583] COMMAND InitSession {
+[1660988146,510][INFO]: Starting ChromeDriver 104.0.5112.79 (3cf3e8c8a07d104b9e1260c910efb8f383285dc5-refs/branch-heads/5112@{#1307}) on port 56651
+[1660988146,510][INFO]: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[1660988147,522][INFO]: [10c9cc7a2f043fb81d33395c06ee08a4] COMMAND InitSession {
    "capabilities": {
       "alwaysMatch": {
          "browserName": "chrome",
@@ -25,7 +25,7 @@
       "version": ""
    }
 }
-[1660822937,244][INFO]: Populating Preferences file: {
+[1660988147,523][INFO]: Populating Preferences file: {
    "alternate_error_pages": {
       "enabled": false
    },
@@ -78,7 +78,7 @@
       "enabled": false
    }
 }
-[1660822937,244][INFO]: Populating Local State file: {
+[1660988147,523][INFO]: Populating Local State file: {
    "background_mode": {
       "enabled": false
    },
@@ -88,19 +88,19 @@
       }
    }
 }
-[1660822937,245][INFO]: Launching chrome: /usr/bin/chromium --allow-pre-commit-input --disable-background-networking --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --enable-automation --enable-blink-features=ShadowDOMV0 --enable-logging --log-level=0 --no-first-run --no-service-autorun --password-store=basic --remote-debugging-port=0 --test-type=webdriver --use-mock-keychain --user-data-dir=/tmp/.com.google.Chrome.EL6zCj data:,
-[1660822937,634][INFO]: resolved localhost to ["::1","127.0.0.1"]
-[1660822937,667][INFO]: [6932c8551794aaa0d247052f76e84583] RESPONSE InitSession {
+[1660988147,523][INFO]: Launching chrome: /usr/bin/chromium --allow-pre-commit-input --disable-background-networking --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --enable-automation --enable-blink-features=ShadowDOMV0 --enable-logging --log-level=0 --no-first-run --no-service-autorun --password-store=basic --remote-debugging-port=0 --test-type=webdriver --use-mock-keychain --user-data-dir=/tmp/.com.google.Chrome.G86W7u data:,
+[1660988147,849][INFO]: resolved localhost to ["::1","127.0.0.1"]
+[1660988147,966][INFO]: [10c9cc7a2f043fb81d33395c06ee08a4] RESPONSE InitSession {
    "capabilities": {
       "acceptInsecureCerts": false,
       "browserName": "chrome",
-      "browserVersion": "104.0.5112.79",
+      "browserVersion": "104.0.5112.101",
       "chrome": {
          "chromedriverVersion": "104.0.5112.79 (3cf3e8c8a07d104b9e1260c910efb8f383285dc5-refs/branch-heads/5112@{#1307})",
-         "userDataDir": "/tmp/.com.google.Chrome.EL6zCj"
+         "userDataDir": "/tmp/.com.google.Chrome.G86W7u"
       },
       "goog:chromeOptions": {
-         "debuggerAddress": "localhost:43789"
+         "debuggerAddress": "localhost:44139"
       },
       "networkConnectionEnabled": false,
       "pageLoadStrategy": "normal",
@@ -119,5 +119,5 @@
       "webauthn:extension:largeBlob": true,
       "webauthn:virtualAuthenticators": true
    },
-   "sessionId": "6932c8551794aaa0d247052f76e84583"
+   "sessionId": "10c9cc7a2f043fb81d33395c06ee08a4"
 }
