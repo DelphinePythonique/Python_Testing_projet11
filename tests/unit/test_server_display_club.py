@@ -7,7 +7,7 @@ from jsonschema import validate
 from server import loadClubs, clubs_with_email
 
 
-class TestServerClass:
+class TestServerDisplayClubClass:
     def test_should_index_ok(self, client):
         response = client.get("/")
         assert response.status_code == 200
