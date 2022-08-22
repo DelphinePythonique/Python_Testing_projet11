@@ -25,36 +25,37 @@ class TestServerDisplayClubClass:
 
         assert validate(instance=clubs, schema=clubs_schema_fixture) is None
 
-    def test_should_return_clubs_with_email_ok(self, clubs_fixture, mocker):
+    def test_should_return_clubs_with_email_ok(self, clubs_fixture):
         assert clubs_with_email(clubs_fixture, "john@gudlft.ok") == [
-            {"name": "Simply Lift", "email": "john@gudlft.ok", "points": "13"}
+            {"name": "CLUB A", "email": "john@gudlft.ok", "points": "13"}
         ]
 
     def test_should_return_clubs_with_email_ko(self, clubs_fixture, mocker):
         assert clubs_with_email(clubs_fixture, "john@gudlft.ko") == []
 
-    def test_should_show_summary_with_email_ok(self, client, clubs_fixture, mocker):
+    def test_should_show_summary_with_email_ok(self, client, clubs_fixture, competitions_fixture, mocker):
         mocker.patch("server.loadClubs", return_value=clubs_fixture)
+        mocker.patch("server.loadCompetitions", return_value=competitions_fixture)
         email = "john@gudlft.ok"
         response = client.post("/showSummary", data={"email": email})
 
         assert response.status_code == 200
-
+        print (response.data)
         assert b"john@gudlft.ok" in response.data
         assert b"Competitions:" in response.data
-        assert b"Spring Festival" in response.data
+        assert b"competition 1" in response.data
         assert b"Date: 2020-03-27 10:00:00" in response.data
         assert b"Number of Places:" in response.data
         assert (
-            b'25\n            \n            <a href="/book/Spring%20Festival/Simply%20Lift">Book Places</a>'
+            b'25\n            \n            <a href="/book/competition%201/CLUB%20A">Book Places</a>'
             in response.data
         )
 
-        assert b"Fall Classic" in response.data
+        assert b"competition 2" in response.data
         assert b"Date: 2020-10-22 13:30:00" in response.data
         assert b"Number of Places:" in response.data
         assert (
-            b'13\n            \n            <a href="/book/Fall%20Classic/Simply%20Lift">Book Places</a>'
+            b'13\n            \n            <a href="/book/competition%202/CLUB%20A">Book Places</a>'
             in response.data
         )
 
