@@ -1,4 +1,9 @@
+import os
+
 import pytest
+
+os.environ['FLASK_ENV'] = "testing"
+
 
 from server import app as myapp
 

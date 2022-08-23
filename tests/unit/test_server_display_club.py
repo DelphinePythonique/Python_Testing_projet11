@@ -20,7 +20,7 @@ class TestServerDisplayClubClass:
         assert b'<button type="submit">Enter</button>' in response.data
 
     def test_should_load_clubs(self, clubs_schema_fixture):
-        assert os.path.exists("clubs.json")
+        assert os.path.exists("db/test/clubs.json")
         clubs = loadClubs()
 
         assert validate(instance=clubs, schema=clubs_schema_fixture) is None

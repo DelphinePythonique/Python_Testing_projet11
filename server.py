@@ -10,6 +10,8 @@ MAX_PLACE_PER_BOOKING = 12
 app = Flask(__name__)
 if os.environ["FLASK_ENV"] == "development":
     app.config.from_pyfile("./settings/dev.cfg")
+elif os.environ["FLASK_ENV"] == "testing":
+    app.config.from_pyfile("./settings/test.cfg")
 else:
     app.config.from_pyfile("./settings/prod.cfg")
 

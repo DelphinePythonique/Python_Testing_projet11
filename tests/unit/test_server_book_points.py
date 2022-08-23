@@ -10,7 +10,7 @@ from tests.conftest import COMPETITION_OK, CLUB_OK, COMPETITION_KO, CLUB_KO
 
 class TestServerBookPointClass:
     def test_should_load_competitions(self, competitions_schema_fixture):
-        assert os.path.exists("competitions.json")
+        assert os.path.exists("db/test/competitions.json")
         competitions = loadCompetitions()
 
         assert (
