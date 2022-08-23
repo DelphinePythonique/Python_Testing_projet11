@@ -20,8 +20,7 @@ def client():
 @pytest.fixture(scope="session")
 def app():
     app = myapp
-    app.debug = True
-    app.config.from_object({"TESTING": True})
+    app.config.from_pyfile('./settings/test.cfg')
     return app
 
 

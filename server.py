@@ -3,55 +3,82 @@ import os.path
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
+from utils import clubs_file, competitions_file, bookings_file
+
 MAX_PLACE_PER_BOOKING = 12
 
 app = Flask(__name__)
-app.secret_key = "something_special"
+if os.environ["FLASK_ENV"] == "development":
+    app.config.from_pyfile("./settings/dev.cfg")
+else:
+    app.config.from_pyfile("./settings/prod.cfg")
+
 
 def init_booking():
-    bookings = {'bookings': []}
-    with open('bookings.json', 'w') as f:
+    bookings = {"bookings": []}
+    file = bookings_file(app)
+    with open(file, "w") as f:
         json.dump(bookings, f)
 
 
 def save_booking(club, competition, booked_places):
-    if not os.path.isfile("bookings.json"):
+    booking_file_ = bookings_file(app)
+    if not os.path.isfile(booking_file_):
         init_booking()
     competitions = loadCompetitions()
     for c in competitions:
-        if c['name'] == competition['name']:
-            c.update({'numberOfPlaces': str(int(c['numberOfPlaces']) - int(booked_places))})
+        if c["name"] == competition["name"]:
+            c.update(
+                {"numberOfPlaces": str(int(c["numberOfPlaces"]) - int(booked_places))}
+            )
     competitions_to_write = {"competitions": competitions}
-    with open('competitions.json', 'w') as f:
+    competition_file_ = competitions_file(app)
+    with open(competition_file_, "w") as f:
         json.dump(competitions_to_write, f, indent=4)
     bookings = load_bookings()
-    bookings.append({'club':club['name'], 'competition': competition['name'], 'booked_places': booked_places})
+    bookings.append(
+        {
+            "club": club["name"],
+            "competition": competition["name"],
+            "booked_places": booked_places,
+        }
+    )
     bookings_to_write = {"bookings": bookings}
-    with open('bookings.json', 'w') as f:
+    with open(booking_file_, "w") as f:
         json.dump(bookings_to_write, f, indent=4)
 
+
 def loadClubs():
-    with open("clubs.json") as c:
+    file = clubs_file(app)
+    with open(file) as c:
         listOfClubs = json.load(c)["clubs"]
         return listOfClubs
 
 
 def loadCompetitions():
-    with open("competitions.json") as comps:
+    file = competitions_file(app)
+    with open(file) as comps:
         listOfCompetitions = json.load(comps)["competitions"]
         return listOfCompetitions
 
-def load_bookings():
 
-    with open("bookings.json") as booking:
+def load_bookings():
+    file = bookings_file(app)
+    with open(file) as booking:
         list_of_booking = json.load(booking)["bookings"]
         return list_of_booking
 
+
 def max_place_for_booking(competition, club):
     try:
-        return min(MAX_PLACE_PER_BOOKING, int(competition['numberOfPlaces']), int(club['points']))
+        return min(
+            MAX_PLACE_PER_BOOKING,
+            int(competition["numberOfPlaces"]),
+            int(club["points"]),
+        )
     except TypeError:
         return 0
+
 
 def clubs_with_email(clubs, email):
 
@@ -131,7 +158,7 @@ def purchasePlaces():
     found_competition = extract_first_competition_with_name(
         competitions, request.form["competition"]
     )
-    if not found_competition :
+    if not found_competition:
         flash("competition not found")
         return (
             render_template("welcome.html", club=found_club, competitions=competitions),
@@ -140,14 +167,14 @@ def purchasePlaces():
 
     if found_club and found_competition:
         places_required = int(request.form["places"])
-        if places_required > max_place_for_booking(found_competition,found_club):
+        if places_required > max_place_for_booking(found_competition, found_club):
             flash("enter less places!")
             return render_template(
                 "booking.html", club=found_club, competition=found_competition
             )
 
         else:
-            save_booking(found_club,found_competition, places_required)
+            save_booking(found_club, found_competition, places_required)
             flash("Great-booking complete!")
             return render_template(
                 "welcome.html", club=found_club, competitions=competitions
@@ -160,5 +187,3 @@ def purchasePlaces():
 @app.route("/logout")
 def logout():
     return redirect(url_for("index"))
-
-

@@ -1,0 +1,19 @@
+{
+    "bookings": [
+        {
+            "club": "Simply Lift",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        },
+        {
+            "club": "Simply Lift",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        },
+        {
+            "club": "Simply Lift",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        }
+    ]
+}
