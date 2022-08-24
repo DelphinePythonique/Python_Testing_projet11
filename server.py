@@ -1,4 +1,6 @@
 import json
+import os
+
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
@@ -15,7 +17,12 @@ def loadCompetitions():
 
 
 app = Flask(__name__)
-app.secret_key = "something_special"
+if os.environ["FLASK_ENV"] == "development":
+    app.config.from_pyfile("./settings/dev.cfg")
+elif os.environ["FLASK_ENV"] == "testing":
+    app.config.from_pyfile("./settings/test.cfg")
+else :
+    app.config.from_pyfile("./settings/prod.cfg")
 
 competitions = loadCompetitions()
 clubs = loadClubs()
