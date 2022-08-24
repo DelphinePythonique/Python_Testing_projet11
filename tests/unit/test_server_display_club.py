@@ -4,7 +4,7 @@ from flask import get_flashed_messages
 from jsonschema import validate
 
 
-from server import loadClubs, clubs_with_email
+from server import  clubs_with_email
 
 
 class TestServerDisplayClubClass:

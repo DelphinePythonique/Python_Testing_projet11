@@ -3,7 +3,7 @@ import os.path
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
-from utils import clubs_file, competitions_file, bookings_file
+from utils import DataManager
 
 MAX_PLACE_PER_BOOKING = 12
 
@@ -16,28 +16,24 @@ else:
     app.config.from_pyfile("./settings/prod.cfg")
 
 
-def init_booking():
-    bookings = {"bookings": []}
-    file = bookings_file(app)
-    with open(file, "w") as f:
-        json.dump(bookings, f)
-
-
 def save_booking(club, competition, booked_places):
-    booking_file_ = bookings_file(app)
-    if not os.path.isfile(booking_file_):
-        init_booking()
-    competitions = loadCompetitions()
+    data_manager = DataManager(app)
+
+    competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
     for c in competitions:
         if c["name"] == competition["name"]:
             c.update(
                 {"numberOfPlaces": str(int(c["numberOfPlaces"]) - int(booked_places))}
             )
-    competitions_to_write = {"competitions": competitions}
-    competition_file_ = competitions_file(app)
-    with open(competition_file_, "w") as f:
-        json.dump(competitions_to_write, f, indent=4)
-    bookings = load_bookings()
+    data_manager.tables[data_manager.TableName.COMPETITIONS].save(competitions)
+
+    clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
+    for c in clubs:
+        if c["name"] == club["name"]:
+            c.update({"points": str(int(c["points"]) - int(booked_places))})
+    data_manager.tables[data_manager.TableName.COMPETITIONS].save(competitions)
+
+    bookings = data_manager.tables[data_manager.TableName.BOOKINGS].all()
     bookings.append(
         {
             "club": club["name"],
@@ -45,62 +41,24 @@ def save_booking(club, competition, booked_places):
             "booked_places": booked_places,
         }
     )
-    bookings_to_write = {"bookings": bookings}
-    with open(booking_file_, "w") as f:
-        json.dump(bookings_to_write, f, indent=4)
 
-
-def loadClubs():
-    file = clubs_file(app)
-    with open(file) as c:
-        listOfClubs = json.load(c)["clubs"]
-        return listOfClubs
-
-
-def loadCompetitions():
-    file = competitions_file(app)
-    with open(file) as comps:
-        listOfCompetitions = json.load(comps)["competitions"]
-        return listOfCompetitions
-
-
-def load_bookings():
-    file = bookings_file(app)
-    with open(file) as booking:
-        list_of_booking = json.load(booking)["bookings"]
-        return list_of_booking
+    data_manager.tables[data_manager.TableName.BOOKINGS].save(bookings)
 
 
 def max_place_for_booking(competition, club):
     try:
+        data_manager = DataManager(app)
+        places_already_booked = data_manager.tables[
+            data_manager.TableName.CLUBS
+        ].filter({"club": club, "competition": competition})
+
         return min(
-            MAX_PLACE_PER_BOOKING,
+            MAX_PLACE_PER_BOOKING - places_already_booked,
             int(competition["numberOfPlaces"]),
             int(club["points"]),
         )
     except TypeError:
         return 0
-
-
-def clubs_with_email(clubs, email):
-
-    return [club for club in clubs if club["email"] == email]
-
-
-def extract_first_club_with_name(clubs, name):
-    found_clubs = [c for c in clubs if c["name"] == name]
-    if len(found_clubs) == 0:
-        return False
-    else:
-        return found_clubs[0]
-
-
-def extract_first_competition_with_name(competitions, name):
-    found_competitions = [c for c in competitions if c["name"] == name]
-    if len(found_competitions) == 0:
-        return False
-    else:
-        return found_competitions[0]
 
 
 @app.route("/")
@@ -110,31 +68,37 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    clubs = loadClubs()
-    competitions = loadCompetitions()
+    data_manager = DataManager(app)
+    competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
+    club_selected = data_manager.tables[
+        data_manager.TableName.CLUBS
+    ].filter_first_element({"email": request.form["email"]})
 
-    clubs_selected = clubs_with_email(clubs, request.form["email"])
-    if len(clubs_selected) > 0:
-        club = clubs_selected[0]
-        return render_template("welcome.html", club=club, competitions=competitions)
+    if club_selected:
+        return render_template(
+            "welcome.html", club=club_selected, competitions=competitions
+        )
     else:
         flash("email not existing")
         return redirect(url_for("index"))
 
 
-@app.errorhandler(404)
 @app.route("/book/<competition>/<club>")
 def book(competition, club):
-    clubs = loadClubs()
-    competitions = loadCompetitions()
-
-    found_club = extract_first_club_with_name(clubs, club)
+    data_manager = DataManager(app)
+    found_club = data_manager.tables[data_manager.TableName.CLUBS].filter_first_element(
+        {"name": club}
+    )
     if not found_club:
         flash("club not found")
         return render_template("404.html"), 404
 
-    found_competition = extract_first_competition_with_name(competitions, competition)
+    found_competition = data_manager.tables[
+        data_manager.TableName.COMPETITIONS
+    ].filter_first_element({"name": competition})
     if not found_competition:
+        competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
+
         flash("competition not found")
         return (
             render_template("welcome.html", club=found_club, competitions=competitions),
@@ -149,17 +113,19 @@ def book(competition, club):
 
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
-    clubs = loadClubs()
-    competitions = loadCompetitions()
-
-    found_club = extract_first_club_with_name(clubs, request.form["club"])
+    data_manager = DataManager(app)
+    competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
+    found_club = data_manager.tables[data_manager.TableName.CLUBS].filter_first_element(
+        {"name", request.form["club"]}
+    )
     if not found_club:
         flash("club not found")
         return render_template("404.html"), 404
 
-    found_competition = extract_first_competition_with_name(
-        competitions, request.form["competition"]
-    )
+    found_competition = data_manager.tables[
+        data_manager.TableName.COMPETITIONS
+    ].filter_first_element({"name": request.form["competition"]})
+
     if not found_competition:
         flash("competition not found")
         return (
@@ -178,6 +144,9 @@ def purchasePlaces():
         else:
             save_booking(found_club, found_competition, places_required)
             flash("Great-booking complete!")
+            competitions = data_manager.tables[
+                data_manager.TableName.COMPETITIONS
+            ].all()
             return render_template(
                 "welcome.html", club=found_club, competitions=competitions
             )
