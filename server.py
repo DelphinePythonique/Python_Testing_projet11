@@ -3,6 +3,8 @@ import os
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
+from utils import DataManager
+
 
 def loadClubs():
     with open("clubs.json") as c:
@@ -35,8 +37,19 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    club = [club for club in clubs if club["email"] == request.form["email"]][0]
-    return render_template("welcome.html", club=club, competitions=competitions)
+    data_manager = DataManager(app)
+    competitions_ = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
+    club_selected = data_manager.tables[
+        data_manager.TableName.CLUBS
+    ].filter_first_element({"email": request.form["email"]})
+
+    if club_selected:
+        return render_template(
+            "welcome.html", club=club_selected, competitions=competitions_
+        )
+    else:
+        flash("email not existing")
+        return redirect(url_for("index"))
 
 
 @app.route("/book/<competition>/<club>")
