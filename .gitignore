@@ -5,3 +5,5 @@ lib
 .envrc
 __pycache__
 .coverage
+/assets/
+/settings/prod.cfg
