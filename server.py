@@ -3,8 +3,9 @@ import os
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
-from utils import DataManager
+from utils import DataManager, ClubCompetition
 
+MAX_PLACE_PER_BOOKING = 12
 
 def save_booking(club, competition, booked_places):
     data_manager = DataManager(app)
@@ -37,12 +38,14 @@ def save_booking(club, competition, booked_places):
 
 def max_place_for_booking(competition, club):
     try:
+        data_manager = DataManager(app)
+        club_competition =  ClubCompetition(data_manager, data_manager.TableName.BOOKINGS.value, club, competition)
+        places_already_booked = club_competition.total_booked_places
         return min(
-
+            MAX_PLACE_PER_BOOKING - places_already_booked,
             int(competition["numberOfPlaces"]),
             int(club["points"]),
         )
-
     except TypeError:
         return 0
 
