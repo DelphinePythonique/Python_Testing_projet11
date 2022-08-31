@@ -68,3 +68,8 @@ class Table:
             if self._match_filters(elem, filters):
                 founded_element.append(elem)
         return founded_element
+
+    def save(self, datas):
+        datas_to_write = {self.name: datas}
+        with open(self._database_file_path, "w") as f:
+            json.dump(datas_to_write, f, indent=4)

@@ -1,16 +1,19 @@
-{"clubs":[
-    {
-        "name":"dev1",
-        "email":"dev1@project11.fr",
-        "points":"13"
-    },
-    {
-        "name":"dev2",
-        "email": "dev2@project11.fr",
-        "points":"4"
-    },
-    {   "name":"dev3",
-        "email": "dev3@project11.fr",
-        "points":"12"
-    }
-]}
+{
+    "clubs": [
+        {
+            "name": "dev1",
+            "email": "dev1@project11.fr",
+            "points": "9"
+        },
+        {
+            "name": "dev2",
+            "email": "dev2@project11.fr",
+            "points": "4"
+        },
+        {
+            "name": "dev3",
+            "email": "dev3@project11.fr",
+            "points": "12"
+        }
+    ]
+}

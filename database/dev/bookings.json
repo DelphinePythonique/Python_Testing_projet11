@@ -1,0 +1,29 @@
+{
+    "bookings": [
+        {
+            "club": "dev1",
+            "competition": "Spring Festival",
+            "booked_places": 12
+        },
+        {
+            "club": "dev1",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        },
+        {
+            "club": "dev1",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        },
+        {
+            "club": "dev1",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        },
+        {
+            "club": "dev1",
+            "competition": "Spring Festival",
+            "booked_places": 1
+        }
+    ]
+}
