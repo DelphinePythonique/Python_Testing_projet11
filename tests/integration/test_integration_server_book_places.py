@@ -1,7 +1,7 @@
 from flask import get_flashed_messages
 
 from tests.conftest import COMPETITION_KO, COMPETITION_OK, CLUB_OK, CLUB_KO, DATABASE_DIRECTORY_FOR_TEST, \
-    refresh_datafiles
+    refresh_datafiles, COMPETITION2_OK
 
 
 class TestIntegrationServerBookPlaceClass:
@@ -98,6 +98,22 @@ class TestIntegrationServerBookPlaceClass:
         flash_messages = get_flashed_messages()
         assert "enter less places!" in flash_messages
         assert f'type="number" name="places"' in response.data.decode("utf-8")
+
+    def test_should_not_purchase_more_than_twelve_points(self, client):
+        response = client.post(
+            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 2}
+        )
+        assert response.status_code == 200
+        flash_messages = get_flashed_messages()
+        assert "Great-booking complete!" in flash_messages
+
+        response = client.post(
+            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 11}
+        )
+        assert response.status_code == 200
+        flash_messages = get_flashed_messages()
+        assert "enter less places!" in flash_messages
+
 
     def test_should_purchase_ok(self, client):
         response = client.post(

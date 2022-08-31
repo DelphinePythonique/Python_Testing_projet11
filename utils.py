@@ -73,3 +73,20 @@ class Table:
         datas_to_write = {self.name: datas}
         with open(self._database_file_path, "w") as f:
             json.dump(datas_to_write, f, indent=4)
+
+
+class ClubCompetition(Table):
+    def __init__(self, manager, name, club, competition):
+        self.club = club
+        self.competition = competition
+        super().__init__(manager, name)
+
+    @property
+    def total_booked_places(self):
+
+        total = 0
+        for booking in self.filter(
+            {"club": self.club['name'], "competition": self.competition['name']}
+        ):
+            total += booking['booked_places']
+        return total

@@ -13,6 +13,7 @@ CLUB_TABLE_READONLY = "clubs"
 EMAIL_OK = "test1@project11.fr"
 EMAIL_KO = "test1@project11.ko"
 COMPETITION_OK = "competition test1"
+COMPETITION2_OK = "competition test2"
 COMPETITION_KO = "competition ko"
 CLUB_OK = "test1"
 CLUB_KO = "CLUB KO"
@@ -147,3 +148,6 @@ def refresh_datafiles():
 
     with open(f"{DATABASE_DIRECTORY_FOR_TEST}/competitions.json", "w") as myfile:
         myfile.write(data)
+
+    if os.path.exists(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings.json"):
+        os.remove(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings.json")
