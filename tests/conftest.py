@@ -8,8 +8,9 @@ os.environ["FLASK_ENV"] = "testing"
 from server import app as myapp
 
 DATABASE_DIRECTORY_FOR_TEST = "database/test/"
-CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST = "clubs_test"
-CLUB_TABLE_READONLY = "clubs"
+COMPETITIONS_TABLE = "competitions"
+CLUBS_TABLE = "clubs"
+BOOKINGS_TABLE = "bookings"
 EMAIL_OK = "test1@project11.fr"
 EMAIL_KO = "test1@project11.ko"
 COMPETITION_OK = "competition test1"
@@ -34,7 +35,7 @@ def client():
 def app():
     app = myapp
     app.config.from_pyfile("./settings/test.cfg")
-    yield app
+    return app
 
 
 @pytest.fixture
@@ -48,37 +49,67 @@ def clubs_fixture():
 
 
 @pytest.fixture
-def clubs_ready_to_dump_fixture():
-    data = {
-        CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST: [
-            {"name": "CLUB A", "email": "john@gudlft.ok", "points": "13"},
-            {"name": "CLUB B", "email": "admin@irontemple.com", "points": "4"},
-            {"name": "CLUB C", "email": "kate@shelifts.co.uk", "points": "12"},
-        ]
-    }
-    yield data
-
-
-@pytest.fixture
 def competitions_fixture():
     data = [
         {
-            "name": "competition 1",
+            "name": "competition test1",
             "date": "2020-03-27 10:00:00",
-            "numberOfPlaces": "25",
+            "numberOfPlaces": "6"
         },
         {
-            "name": "competition 2",
+            "name": "competition test2",
             "date": "2020-10-22 13:30:00",
-            "numberOfPlaces": "13",
-        },
+            "numberOfPlaces": "13"
+        }
     ]
     yield data
 
 
 @pytest.fixture
+def booking_fixture():
+    data = [{
+            "club": "test1",
+            "competition": "competition test2",
+            "booked_places": 2
+        }]
+    yield data
+
+@pytest.fixture
 def club_fixture():
-    data = [{"name": "Simply Lift", "email": "john@gudlft.ok", "points": "13"}]
+    data = [{"name": "test1", "email": "test1@project11.fr", "points": "13"}]
+    yield data
+
+@pytest.fixture
+def clubs_fixture():
+    data = [
+        {
+            "name": "test1",
+            "email": "test1@project11.fr",
+            "points": "5"
+        },
+        {
+            "name": "test2",
+            "email": "test2@project11.fr",
+            "points": "4"
+        },
+        {
+            "name": "test3",
+            "email": "test3@project11.fr",
+            "points": "12"
+        }
+    ]
+
+    yield data
+
+@pytest.fixture
+def competition_fixture():
+    data = [
+        {
+            "name": "competition test2",
+            "date": "2020-10-22 13:30:00",
+            "numberOfPlaces": "13",
+        }
+    ]
     yield data
 
 
@@ -125,16 +156,19 @@ def competitions_schema_fixture():
 
 
 class TableNameMocker(enum.Enum):
-    CLUBS = "clubs_test"
-    COMPETITIONS = "competitions_test"
-    BOOKINGS = "bookings_test"
+    CLUBS = "clubs"
+    COMPETITIONS = "competitions"
+    BOOKINGS = "bookings"
 
 
 class DataManagerMocker:
     @property
     def app(self):
         app = myapp
+        app.config.from_pyfile("./settings/test.cfg")
+
         return app
+
 
 def refresh_datafiles():
     with open(f"{DATABASE_DIRECTORY_FOR_TEST}/clubs_save.json", "r") as myfile:
@@ -149,5 +183,8 @@ def refresh_datafiles():
     with open(f"{DATABASE_DIRECTORY_FOR_TEST}/competitions.json", "w") as myfile:
         myfile.write(data)
 
-    if os.path.exists(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings.json"):
-        os.remove(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings.json")
+    with open(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings_save.json", "r") as myfile:
+        data = myfile.read()
+
+    with open(f"{DATABASE_DIRECTORY_FOR_TEST}/bookings.json", "w") as myfile:
+        myfile.write(data)
