@@ -25,18 +25,34 @@ QUANTITY_POINTS_SUP_AVAILABLE = 14
 
 @pytest.fixture
 def client():
+    os.environ.update(FLASK_ENV="testing")
     app = myapp
-    app.config.from_pyfile("./settings/test.cfg")
+    #app.config.from_pyfile("./settings/test.cfg")
     with app.test_client() as client:
         yield client
 
 
 @pytest.fixture(scope="session")
-def app():
+def app_test():
+    os.environ.update(FLASK_ENV="testing")
     app = myapp
-    app.config.from_pyfile("./settings/test.cfg")
+    #app.config.from_pyfile("./settings/test.cfg")
     return app
 
+@pytest.fixture(scope="session")
+def app_dev():
+    os.environ.update(FLASK_ENV="development")
+    app = myapp
+    mypath = app.config["DB_PATH"]
+    print(f"***************************MA CONFO = {mypath}")
+    #app.config.from_pyfile("./settings/test.cfg")
+    return app
+@pytest.fixture(scope="session")
+def app_prod():
+    os.environ.update(FLASK_ENV="prod")
+    app = myapp
+    #app.config.from_pyfile("./settings/test.cfg")
+    return app
 
 @pytest.fixture
 def clubs_fixture():
@@ -164,8 +180,9 @@ class TableNameMocker(enum.Enum):
 class DataManagerMocker:
     @property
     def app(self):
+        os.environ.update(FLASK_ENV="test")
         app = myapp
-        app.config.from_pyfile("./settings/test.cfg")
+        #app.config.from_pyfile("./settings/test.cfg")
 
         return app
 

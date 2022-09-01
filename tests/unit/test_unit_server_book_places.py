@@ -171,8 +171,8 @@ class TestUnitServerBookPlacesClass:
         )
         assert is_allowed == expected
 
-    def test_save_competition_table(self, app, mocker, competition_fixture):
-        mocker.patch("server.app", app)
+    def test_save_competition_table(self, app_test, mocker, competition_fixture):
+        mocker.patch("server.app", app_test)
         save_competition_table(competition_fixture[0], 2)
         file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{COMPETITIONS_TABLE}.json"
         with open(file_path) as c:
@@ -191,8 +191,8 @@ class TestUnitServerBookPlacesClass:
             },
         ]
 
-    def test_save_club_table(self, app, mocker, club_fixture):
-        mocker.patch("server.app", app)
+    def test_save_club_table(self, app_test, mocker, club_fixture):
+        mocker.patch("server.app", app_test)
         save_club_table(club_fixture[0], 2)
         file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json"
         with open(file_path) as c:
@@ -204,8 +204,8 @@ class TestUnitServerBookPlacesClass:
             {"name": "test3", "email": "test3@project11.fr", "points": "12"},
         ]
 
-    def test_save_booking_table(self, app, mocker, booking_fixture):
-        mocker.patch("server.app", app)
+    def test_save_booking_table(self, app_test, mocker, booking_fixture):
+        mocker.patch("server.app", app_test)
         save_booking_table(
             booking_fixture[0]["club"], booking_fixture[0]["competition"], 2
         )
@@ -223,8 +223,8 @@ class TestUnitServerBookPlacesClass:
             {"club": "test1", "competition": "competition test2", "booked_places": 2},
         ]
 
-    def test_save_booking(self, app, mocker, club_fixture, competition_fixture):
-        mocker.patch("server.app", app)
+    def test_save_booking(self, app_test, mocker, club_fixture, competition_fixture):
+        mocker.patch("server.app", app_test)
         result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
         assert result == True
         assert message == "Great-booking complete!"
