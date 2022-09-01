@@ -2,17 +2,25 @@ import json
 
 import pytest
 
-from server import max_place_for_booking, booking_is_allowed, save_competition_table, save_club_table, \
-    save_booking_table
+from server import (
+    max_place_for_booking,
+    booking_is_allowed,
+    save_competition_table,
+    save_club_table,
+    save_booking_table,
+    save_booking,
+)
 from tests.conftest import (
     refresh_datafiles,
     DATABASE_DIRECTORY_FOR_TEST,
-    COMPETITIONS_TABLE, CLUBS_TABLE, DataManagerMocker, BOOKINGS_TABLE,
+    COMPETITIONS_TABLE,
+    CLUBS_TABLE,
+    DataManagerMocker,
+    BOOKINGS_TABLE,
 )
 
 
 class TestUnitServerBookPlacesClass:
-
     max_place_for_booking_datas = [
         (25, 5, 11, 1),  # test MAX_PLACE_PER_BOOKING
         (25, 5, 0, 5),  # test club's points
@@ -139,7 +147,7 @@ class TestUnitServerBookPlacesClass:
         max_place_for_booking_datas,
     )
     def test_max_place_for_booking(
-        self, number_of_places_competition, points_club, total_booked_places, expected
+            self, number_of_places_competition, points_club, total_booked_places, expected
     ):
         max_places = max_place_for_booking(
             number_of_places_competition, points_club, total_booked_places
@@ -151,12 +159,12 @@ class TestUnitServerBookPlacesClass:
         booking_is_allowed_datas,
     )
     def test_booking_is_allowed(
-        self,
-        places_required: int,
-        number_of_places: int,
-        club_points: int,
-        total_booked_places: int,
-        expected,
+            self,
+            places_required: int,
+            number_of_places: int,
+            club_points: int,
+            total_booked_places: int,
+            expected,
     ):
         is_allowed = booking_is_allowed(
             places_required, number_of_places, club_points, total_booked_places
@@ -191,64 +199,40 @@ class TestUnitServerBookPlacesClass:
             list_dataset = json.load(c)[CLUBS_TABLE]
 
         assert list_dataset == [
-        {
-            "name": "test1",
-            "email": "test1@project11.fr",
-            "points": "11"
-        },
-        {
-            "name": "test2",
-            "email": "test2@project11.fr",
-            "points": "4"
-        },
-        {
-            "name": "test3",
-            "email": "test3@project11.fr",
-            "points": "12"
-        }
-    ]
+            {"name": "test1", "email": "test1@project11.fr", "points": "11"},
+            {"name": "test2", "email": "test2@project11.fr", "points": "4"},
+            {"name": "test3", "email": "test3@project11.fr", "points": "12"},
+        ]
 
     def test_save_booking_table(self, app, mocker, booking_fixture):
         mocker.patch("server.app", app)
-        save_booking_table(booking_fixture[0]['club'], booking_fixture[0]['competition'], 2)
+        save_booking_table(
+            booking_fixture[0]["club"], booking_fixture[0]["competition"], 2
+        )
         file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{BOOKINGS_TABLE}.json"
         with open(file_path) as c:
             list_dataset = json.load(c)[BOOKINGS_TABLE]
 
-        assert list_dataset ==[
-        {
-            "club": "test1",
-            "competition": "competition test2",
-            "booked_places": 2
-        },
-        {
-            "club": "test1",
-            "competition": "competition test2",
-            "booked_places": 1
-        },
-        {
-            "club": "test1",
-            "competition": "competition test2",
-            "booked_places": 2
-        },
-        {
-            "club": "test2",
-            "competition": "competition test2",
-            "booked_places": 5
-        },
-        {
-            "club": "test1",
-            "competition": "competition test2",
-            "booked_places": 2
-        },
-        {
-            "club": "test1",
-            "competition": "competition test1",
-            "booked_places": 2
-        },
-            {
-                "club": "test1",
-                "competition": "competition test2",
-                "booked_places": 2
-            }
+        assert list_dataset == [
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
+            {"club": "test1", "competition": "competition test2", "booked_places": 1},
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
+            {"club": "test2", "competition": "competition test2", "booked_places": 5},
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
+            {"club": "test1", "competition": "competition test1", "booked_places": 2},
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
         ]
+
+    def test_save_booking(self, app, mocker, club_fixture, competition_fixture):
+        mocker.patch("server.app", app)
+        result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
+        assert result == True
+        assert message == "Great-booking complete!"
+
+        result, message = save_booking(club_fixture[0], competition_fixture[0], 0)
+        assert result == False
+        assert message == "booking must be superior to 0"
+
+        result, message = save_booking(club_fixture[0], competition_fixture[0], 7)
+        assert result == False
+        assert message == "enter less places!"
