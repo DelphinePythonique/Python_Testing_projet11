@@ -18,13 +18,13 @@ from utils import DataManager, Table, ClubCompetition
 
 
 class TestDatamanagerClass:
-    def test_init(self, app, mocker):
+    def test_init(self, app_test, mocker):
         mocker.patch("utils.DataManager.TableName", TableNameMocker)
-        data_manager = DataManager(app)
+        data_manager = DataManager(app_test)
         assert len(data_manager.tables) == 3
         assert isinstance(data_manager.tables[TableNameMocker.CLUBS], Table)
         assert data_manager.tables[TableNameMocker.CLUBS].name == "clubs"
-        assert data_manager.app.config["DB_PATH"] == app.config["DB_PATH"]
+        assert data_manager.app.config["DB_PATH"] == app_test.config["DB_PATH"]
 
 
 class TestTableClass:
@@ -87,6 +87,18 @@ class TestTableClass:
         table = Table(data_manager_mocker, CLUBS_TABLE)
         club = table.filter_first_element({"email": EMAIL_KO})
         assert club is None
+
+    def test_filter(self, mocker):
+        data_manager_mocker = DataManagerMocker()
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+        clubs = table.filter({"email": EMAIL_OK})
+        assert clubs == [{"name": "test1", "email": "test1@project11.fr", "points": "13"}]
+        clubs = table.filter({"email": EMAIL_KO})
+        assert clubs == []
+
+        mocker.patch("utils.Table.all", return_value=[])
+        clubs = table.filter({"email": EMAIL_OK})
+        assert clubs == []
 
     def test_save(self, clubs_fixture):
         data_manager_mocker = DataManagerMocker()
