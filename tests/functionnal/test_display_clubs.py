@@ -12,7 +12,7 @@ class TestFunctionnalServerDisplayClubClass:
         refresh_datafiles()
 
     @pytest.mark.nondestructive
-    def test_should_display_summary(self, live_server, selenium):
+    def test_show_summary_with_known_email(self, live_server, selenium):
         selenium.get("http://localhost:5002")
         assert "GUDLFT Registration" in selenium.title
 
@@ -23,7 +23,7 @@ class TestFunctionnalServerDisplayClubClass:
         assert "Summary | GUDLFT Registration" in selenium.title
 
     @pytest.mark.nondestructive
-    def test_should_not_display_summary(
+    def test_show_summary_with_unknown_email(
         self, live_server, selenium
     ):
         selenium.get("http://localhost:5002")
@@ -38,7 +38,7 @@ class TestFunctionnalServerDisplayClubClass:
         assert message_list.text == "email not existing"
 
 
-    def test_should_click_on_link_to_booked(self, live_server, selenium):
+    def test_book_and_click_on_link(self, live_server, selenium):
 
         selenium.get("http://localhost:5002")
         email_input = selenium.find_element(By.NAME, "email")

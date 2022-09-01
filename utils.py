@@ -48,7 +48,7 @@ class Table:
         if len(datas) > 0:
             return datas[0]
         else:
-            return False
+            return None
 
     def _match_filters(self, elem, filters):
         match = True

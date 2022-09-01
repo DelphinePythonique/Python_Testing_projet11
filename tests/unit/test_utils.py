@@ -7,59 +7,67 @@ from tests.conftest import (
     TableNameMocker,
     DataManagerMocker,
     DATABASE_DIRECTORY_FOR_TEST,
-    CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST,
-    CLUB_TABLE_READONLY,
+    CLUBS_TABLE,
     EMAIL_KO,
-    EMAIL_OK, refresh_datafiles
+    EMAIL_OK,
+    refresh_datafiles,
+    BOOKINGS_TABLE,
+    clubs_fixture
 )
-from utils import DataManager, Table
+from utils import DataManager, Table, ClubCompetition
 
 
 class TestDatamanagerClass:
-    def setup_method(self):
-        refresh_datafiles()
-    def test_init_should_be_ok(self, app, mocker):
+    def test_init(self, app, mocker):
         mocker.patch("utils.DataManager.TableName", TableNameMocker)
         data_manager = DataManager(app)
         assert len(data_manager.tables) == 3
         assert isinstance(data_manager.tables[TableNameMocker.CLUBS], Table)
+        assert data_manager.tables[TableNameMocker.CLUBS].name == "clubs"
+        assert data_manager.app.config["DB_PATH"] == app.config["DB_PATH"]
 
 
 class TestTableClass:
+    @staticmethod
     def setup_method(self):
         refresh_datafiles()
-    def test_init_should_be_ok(self):
-        data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        assert table.name == CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST
 
-    def test__database_not_exist_file_path_should_be_ok(self):
+    def test_init(self):
         data_manager_mocker = DataManagerMocker()
-        if os.path.isfile(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"):
-            os.remove(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json")
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        assert table._database_file_path == f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+        assert table.name == CLUBS_TABLE
+        assert table.app == data_manager_mocker.app
 
-    def test__database_exist_file_path_should_be_ok(self):
+    def test__database_file_not_exist(self):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        assert table._database_file_path == f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        assert table._database_file_path == f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"
+        database_file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json"
+        os.remove(database_file_path)
 
-    def test_should_init_database_file(self, clubs_schema_empty_fixture):
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+        assert (
+            table._database_file_path
+            == f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json"
+        )
+
+    def test__database_file_exist(self):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        if os.path.isfile(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"):
-            os.remove(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json")
-        table._init_database_file(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json")
-        with open(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json") as c:
+        database_file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json"
+
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+        assert table._database_file_path == database_file_path
+
+    def test__init_database_file(self, clubs_schema_empty_fixture):
+        data_manager_mocker = DataManagerMocker()
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+
+        table._init_database_file(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json")
+        with open(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json") as c:
             datas = json.load(c)
         assert validate(instance=datas, schema=clubs_schema_empty_fixture) is None
 
-    def test_should_all_is_ok(self):
+    def test_all(self):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_READONLY)
+        table = Table(data_manager_mocker, CLUBS_TABLE)
         clubs = table.all()
         assert len(clubs) == 3
         assert clubs[0] == {
@@ -68,27 +76,70 @@ class TestTableClass:
             "points": "13",
         }
 
-    def test_should_filter_first_elem_is_ok(self):
+    def test_filter_first_element_is_dict(self):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_READONLY)
+        table = Table(data_manager_mocker, CLUBS_TABLE)
         club = table.filter_first_element({"email": EMAIL_OK})
-        assert club
         assert club == {"name": "test1", "email": "test1@project11.fr", "points": "13"}
 
-    def test_should_filter_first_elem_result_is_empty_ok(self):
+    def test_filter_first_elem_is_None(self):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_READONLY)
+        table = Table(data_manager_mocker, CLUBS_TABLE)
         club = table.filter_first_element({"email": EMAIL_KO})
-        assert not club
+        assert club is None
 
-    def test_should_save(self, clubs_fixture, clubs_ready_to_dump_fixture):
+    def test_save(self, clubs_fixture):
         data_manager_mocker = DataManagerMocker()
-        table = Table(data_manager_mocker, CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST)
-        if os.path.isfile(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json"):
-            os.remove(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json")
-
+        table = Table(data_manager_mocker, CLUBS_TABLE)
+        database_file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{CLUBS_TABLE}.json"
+        os.remove(database_file_path)
         table.save(clubs_fixture)
-        assert os.path.isfile(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json")
-        with open(f"{DATABASE_DIRECTORY_FOR_TEST}{CLUB_TABLE_FOR_INIT_AND_DESTROY_TEST}.json") as c:
-            datas = json.load(c)
-            assert datas == clubs_ready_to_dump_fixture
+        assert os.path.isfile(database_file_path)
+        with open(database_file_path) as c:
+            datas = json.load(c)[CLUBS_TABLE]
+            assert datas == [
+        {
+            "name": "test1",
+            "email": "test1@project11.fr",
+            "points": "5"
+        },
+        {
+            "name": "test2",
+            "email": "test2@project11.fr",
+            "points": "4"
+        },
+        {
+            "name": "test3",
+            "email": "test3@project11.fr",
+            "points": "12"
+        }
+    ]
+
+
+class TestClubCompetitionClass:
+    @staticmethod
+    def setup_method(self):
+        refresh_datafiles()
+
+    def test_init(self, club_fixture, competition_fixture):
+        data_manager_mocker = DataManagerMocker()
+        club_competition = ClubCompetition(
+            data_manager_mocker,
+            BOOKINGS_TABLE,
+            club_fixture[0],
+            competition_fixture[0],
+        )
+        assert club_competition.name == BOOKINGS_TABLE
+        assert club_competition.app == data_manager_mocker.app
+        assert club_competition.club['name'] == "test1"
+        assert club_competition.competition['name'] == "competition test2"
+
+    def test_total_booked_places(self, club_fixture, competition_fixture):
+        data_manager_mocker = DataManagerMocker()
+        club_competition = ClubCompetition(
+            data_manager_mocker,
+            BOOKINGS_TABLE,
+            club_fixture[0],
+            competition_fixture[0],
+        )
+        assert club_competition.total_booked_places == 7

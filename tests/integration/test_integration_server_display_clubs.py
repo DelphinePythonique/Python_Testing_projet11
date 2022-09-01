@@ -7,7 +7,7 @@ class TestIntegrationServerDisplayClubClass:
     def setup_method(self):
         refresh_datafiles()
 
-    def test_should_show_summary_with_email_ok(self, client):
+    def test_show_summary_with_email_ok(self, client):
         email = EMAIL_OK
         response = client.post("/showSummary", data={"email": email})
 
@@ -24,7 +24,7 @@ class TestIntegrationServerDisplayClubClass:
 
 
 
-    def test_should_show_summary_with_email_ko(self, client, clubs_fixture, mocker):
+    def test_show_summary_with_email_ko(self, client, clubs_fixture, mocker):
         email = EMAIL_KO
         response = client.post("/showSummary", data={"email": email})
 
