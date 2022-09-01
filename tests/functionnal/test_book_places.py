@@ -20,7 +20,7 @@ class TestFunctionnalServerDisplayClubClass:
         refresh_datafiles()
 
     @pytest.mark.nondestructive
-    def test_should_display_book_form_and_book(self, live_server, selenium):
+    def test_book(self, live_server, selenium):
         selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
         assert "Booking for competition test1 || GUDLFT" in selenium.title
 
@@ -31,7 +31,7 @@ class TestFunctionnalServerDisplayClubClass:
         assert "Great-booking complete!" in selenium.find_element(By.TAG_NAME, "li").text
 
     @pytest.mark.nondestructive
-    def test_should_display_book_form_and_not_book(self, live_server, selenium):
+    def test_book_to_many_places(self, live_server, selenium):
         selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
         assert "Booking for competition test1 || GUDLFT" in selenium.title
 
@@ -40,6 +40,17 @@ class TestFunctionnalServerDisplayClubClass:
         email_input.send_keys(QUANTITY_POINTS_SUP_AVAILABLE)
         email_input.send_keys(Keys.RETURN)
         assert "enter less places!" in selenium.find_element(By.TAG_NAME, "li").text
+
+    @pytest.mark.nondestructive
+    def test_book_zero_place(self, live_server, selenium):
+        selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
+        assert "Booking for competition test1 || GUDLFT" in selenium.title
+
+        email_input = selenium.find_element(By.NAME, "places")
+        email_input.clear()
+        email_input.send_keys(0)
+        email_input.send_keys(Keys.RETURN)
+        assert "booking must be superior to 0" in selenium.find_element(By.TAG_NAME, "li").text
 
 
 
