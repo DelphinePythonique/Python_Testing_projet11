@@ -33,6 +33,13 @@ def client():
 
 
 @pytest.fixture(scope="session")
+def app():
+    os.environ.update(FLASK_ENV="testing")
+    app = myapp
+    #app.config.from_pyfile("./settings/test.cfg")
+    return app
+
+@pytest.fixture(scope="session")
 def app_test():
     os.environ.update(FLASK_ENV="testing")
     app = myapp
