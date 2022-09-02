@@ -45,6 +45,6 @@ class TestFunctionnalServerDisplayClubClass:
         email_input.clear()
         email_input.send_keys(EMAIL_OK)
         email_input.send_keys(Keys.RETURN)
-        link_to_book = selenium.find_element(By.ID, "competition test1")
+        link_to_book = selenium.find_element(By.ID, "competition test2")
         link_to_book.click()
-        assert "Booking for competition test1 || GUDLFT" in selenium.title
+        assert "Booking for competition test2 || GUDLFT" in selenium.title
