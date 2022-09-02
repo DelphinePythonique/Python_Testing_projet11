@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect, flash, url_for, session
 
 from utils import DataManager, ClubCompetition
 
@@ -61,7 +61,7 @@ def save_booking_table(club_name, competition_name, booked_places):
 def save_booking(club, competition, booked_places):
     data_manager = DataManager(app)
     club_competitions = ClubCompetition(
-        data_manager, data_manager.TableName.BOOKINGS.value, club, competition,
+        data_manager, club, competition,
     )
     booking_is_allowed_, message = booking_is_allowed(
         booked_places,
@@ -123,13 +123,15 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
+    email = request.form["email"]
     data_manager = DataManager(app)
     competitions_ = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
     club_selected = data_manager.tables[
         data_manager.TableName.CLUBS
-    ].filter_first_element({"email": request.form["email"]})
+    ].filter_first_element({"email": email})
 
     if club_selected:
+        session['username'] = email
         return render_template(
             "welcome.html", club=club_selected, competitions=competitions_
         )
@@ -201,6 +203,7 @@ def purchasePlaces():
         found_club = data_manager.tables[data_manager.TableName.CLUBS].filter_first_element(
             {"name": request.form["club"]}
         )
+
         competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
         return render_template(
             "welcome.html", club=found_club, competitions=competitions
@@ -213,7 +216,15 @@ def purchasePlaces():
 
 
 # TODO: Add route for points display
-
+@app.route("/display_club")
+def display_club():
+    data_manager = DataManager(app)
+    if not "username"  in session:
+        return redirect(url_for("index"))
+    clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
+    return render_template(
+        "display_club.html.html", clubs=clubs
+    )
 
 @app.route("/logout")
 def logout():

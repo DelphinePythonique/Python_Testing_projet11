@@ -14,7 +14,7 @@ from tests.conftest import (
     EMAIL_OK,
     refresh_datafiles,
     BOOKINGS_TABLE,
-    clubs_fixture
+    clubs_fixture,
 )
 from utils import DataManager, Table, ClubCompetition
 
@@ -29,6 +29,7 @@ def test_is_in_the_past():
     assert is_in_the_past(datetime_)
     datetime_ = datetime.strptime("2050-10-22 13:30:00", "%Y-%m-%d %H:%M:%S")
     assert not is_in_the_past(datetime_)
+
 
 class TestDatamanagerClass:
     def test_init(self, app_test, mocker):
@@ -105,7 +106,9 @@ class TestTableClass:
         data_manager_mocker = DataManagerMocker()
         table = Table(data_manager_mocker, CLUBS_TABLE)
         clubs = table.filter({"email": EMAIL_OK})
-        assert clubs == [{"name": "test1", "email": "test1@project11.fr", "points": "13"}]
+        assert clubs == [
+            {"name": "test1", "email": "test1@project11.fr", "points": "13"}
+        ]
         clubs = table.filter({"email": EMAIL_KO})
         assert clubs == []
 
@@ -123,22 +126,10 @@ class TestTableClass:
         with open(database_file_path) as c:
             datas = json.load(c)[CLUBS_TABLE]
             assert datas == [
-        {
-            "name": "test1",
-            "email": "test1@project11.fr",
-            "points": "5"
-        },
-        {
-            "name": "test2",
-            "email": "test2@project11.fr",
-            "points": "4"
-        },
-        {
-            "name": "test3",
-            "email": "test3@project11.fr",
-            "points": "12"
-        }
-    ]
+                {"name": "test1", "email": "test1@project11.fr", "points": "5"},
+                {"name": "test2", "email": "test2@project11.fr", "points": "4"},
+                {"name": "test3", "email": "test3@project11.fr", "points": "12"},
+            ]
 
 
 class TestClubCompetitionClass:
@@ -149,22 +140,19 @@ class TestClubCompetitionClass:
     def test_init(self, club_fixture, competition_fixture):
         data_manager_mocker = DataManagerMocker()
         club_competition = ClubCompetition(
-            data_manager_mocker,
-            BOOKINGS_TABLE,
-            club_fixture[0],
-            competition_fixture[0],
+            data_manager_mocker, club_fixture[0], competition_fixture[0],
         )
         assert club_competition.name == BOOKINGS_TABLE
         assert club_competition.app == data_manager_mocker.app
-        assert club_competition.club['name'] == "test1"
-        assert club_competition.competition['name'] == "competition test2"
+        assert club_competition.club["name"] == "test1"
+        assert club_competition.competition["name"] == "competition test2"
 
     def test_total_booked_places(self, club_fixture, competition_fixture):
         data_manager_mocker = DataManagerMocker()
         club_competition = ClubCompetition(
-            data_manager_mocker,
-            BOOKINGS_TABLE,
-            club_fixture[0],
-            competition_fixture[0],
+            data_manager_mocker, club_fixture[0], competition_fixture[0],
         )
-        assert club_competition.total_booked_places == 7
+        assert (
+            club_competition.total_booked_places
+            == 7
+        )

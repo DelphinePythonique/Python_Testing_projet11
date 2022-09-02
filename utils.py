@@ -76,18 +76,24 @@ class Table:
         with open(self._database_file_path, "w") as f:
             json.dump(datas_to_write, f, indent=4)
 
+class Club(Table):
+    def __init__(self, manager):
+        super().__init__(manager, manager.TableName.CLUBS.value)
+
 
 class ClubCompetition(Table):
-    def __init__(self, manager, name, club, competition):
+
+    def __init__(self, manager, club, competition):
         self.club = club
         self.competition = competition
-        super().__init__(manager, name)
+        super().__init__(manager, manager.TableName.BOOKINGS.value)
 
     @property
-    def total_booked_places(self):
+    def total_booked_places_per_competition_and_club(self):
         total = 0
         for booking in self.filter(
                 {"club": self.club['name'], "competition": self.competition['name']}
         ):
             total += booking['booked_places']
         return total
+

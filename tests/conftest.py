@@ -185,6 +185,11 @@ class TableNameMocker(enum.Enum):
 
 
 class DataManagerMocker:
+    class TableName(enum.Enum):
+        CLUBS = "clubs"
+        COMPETITIONS = "competitions"
+        BOOKINGS = "bookings"
+
     @property
     def app(self):
         os.environ.update(FLASK_ENV="test")
