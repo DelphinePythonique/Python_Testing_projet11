@@ -38,14 +38,23 @@ class TestUnitServerBookPlacesClass:
             25,
             5,
             11,
+            "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test MAX_PLACE_PER_BOOKING => eq
-        (5, 25, 5, 0, (True, "booking must be save")),  # test club's points => eq
+        (
+            5,
+            25,
+            5,
+            0,
+            "2050-10-22 13:30:00",
+            (True, "booking must be save"),
+        ),  # test club's points => eq
         (
             12,
             25,
             14,
             0,
+            "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test MAX_PLACE_PER_BOOKING => eq
         (
@@ -53,6 +62,7 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             12,
+            "2020-10-22 13:30:00",
             (False, "booking must be superior to 0"),
         ),  # test places required <= 0
         (
@@ -60,6 +70,7 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             0,
+            "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test competition's places => eq
         (
@@ -67,6 +78,7 @@ class TestUnitServerBookPlacesClass:
             "5",
             14,
             0,
+            "2020-10-22 13:30:00",
             (False, "booking must be superior to 0"),
         ),  # test type error => eq
         (
@@ -74,6 +86,7 @@ class TestUnitServerBookPlacesClass:
             5,
             "14",
             0,
+            "2020-10-22 13:30:00",
             (False, "booking must be superior to 0"),
         ),  # test type error => eq
         (
@@ -81,6 +94,7 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             "0",
+            "2020-10-22 13:30:00",
             (False, "booking must be superior to 0"),
         ),  # test type error => eq
         (
@@ -88,14 +102,23 @@ class TestUnitServerBookPlacesClass:
             25,
             5,
             11,
+            "2025-10-22 13:30:00",
             (False, "booking must be superior to 0"),
         ),  # # test places required <= 0
-        (4, 25, 5, 0, (True, "booking must be save")),  # test club's points => inf
+        (
+            4,
+            25,
+            5,
+            0,
+            "2050-10-22 13:30:00",
+            (True, "booking must be save"),
+        ),  # test club's points => inf
         (
             11,
             25,
             14,
             0,
+            "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test MAX_PLACE_PER_BOOKING => inf
         (
@@ -103,6 +126,7 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             0,
+            "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test competition's places => inf
         (
@@ -110,14 +134,23 @@ class TestUnitServerBookPlacesClass:
             25,
             5,
             11,
+            "2050-10-22 13:30:00",
             (False, "enter less places!"),
         ),  # test MAX_PLACE_PER_BOOKING => sup
-        (6, 25, 5, 0, (False, "enter less places!")),  # test club's points => sup
+        (
+            6,
+            25,
+            5,
+            0,
+            "2020-10-22 13:30:00",
+            (False, "enter less places!"),
+        ),  # test club's points => sup
         (
             13,
             25,
             14,
             0,
+            "2020-10-22 13:30:00",
             (False, "enter less places!"),
         ),  # test MAX_PLACE_PER_BOOKING => sup
         (
@@ -125,6 +158,7 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             12,
+            "2020-10-22 13:30:00",
             (False, "enter less places!"),
         ),  # test MAX_PLACE_PER_BOOKING => sup
         (
@@ -132,11 +166,41 @@ class TestUnitServerBookPlacesClass:
             5,
             14,
             0,
+            "2020-10-22 13:30:00",
             (False, "enter less places!"),
         ),  # test competition's places => sup
-        (1, "5", 14, 0, (False, "enter less places!")),  # test type error => sup
-        (1, 5, "14", 0, (False, "enter less places!")),  # test type error => sup
-        (1, 5, 14, "0", (False, "enter less places!")),  # test type error => sup
+        (
+            1,
+            "5",
+            14,
+            0,
+            "2020-10-22 13:30:00",
+            (False, "enter less places!"),
+        ),  # test type error => sup
+        (
+            1,
+            5,
+            "14",
+            0,
+            "2020-10-22 13:30:00",
+            (False, "enter less places!"),
+        ),  # test type error => sup
+        (
+            1,
+            5,
+            14,
+            "0",
+            "2020-10-22 13:30:00",
+            (False, "enter less places!"),
+        ),  # test type error => sup
+        (
+            4,
+            5,
+            14,
+            0,
+            "2020-10-22 13:30:00",
+            (False, "too late the competition is over"),
+        ),  # test the competition is over
     ]
 
     def setup_method(self):
@@ -147,7 +211,7 @@ class TestUnitServerBookPlacesClass:
         max_place_for_booking_datas,
     )
     def test_max_place_for_booking(
-            self, number_of_places_competition, points_club, total_booked_places, expected
+        self, number_of_places_competition, points_club, total_booked_places, expected
     ):
         max_places = max_place_for_booking(
             number_of_places_competition, points_club, total_booked_places
@@ -155,19 +219,24 @@ class TestUnitServerBookPlacesClass:
         assert max_places == expected
 
     @pytest.mark.parametrize(
-        "places_required, number_of_places, club_points,total_booked_places, expected",
+        "places_required, number_of_places, club_points,total_booked_places,date_competition, expected",
         booking_is_allowed_datas,
     )
     def test_booking_is_allowed(
-            self,
-            places_required: int,
-            number_of_places: int,
-            club_points: int,
-            total_booked_places: int,
-            expected,
+        self,
+        places_required: int,
+        number_of_places: int,
+        club_points: int,
+        total_booked_places: int,
+        date_competition: str,
+        expected,
     ):
         is_allowed = booking_is_allowed(
-            places_required, number_of_places, club_points, total_booked_places
+            places_required,
+            number_of_places,
+            club_points,
+            total_booked_places,
+            date_competition,
         )
         assert is_allowed == expected
 
@@ -186,8 +255,8 @@ class TestUnitServerBookPlacesClass:
             },
             {
                 "name": "competition test2",
-                "date": "2020-10-22 13:30:00",
-                "numberOfPlaces": "11",
+                "date": "2050-10-22 13:30:00",
+                "numberOfPlaces": "4",
             },
         ]
 
@@ -225,9 +294,6 @@ class TestUnitServerBookPlacesClass:
 
     def test_save_booking(self, app_test, mocker, club_fixture, competition_fixture):
         mocker.patch("server.app", app_test)
-        result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
-        assert result == True
-        assert message == "Great-booking complete!"
 
         result, message = save_booking(club_fixture[0], competition_fixture[0], 0)
         assert result == False
@@ -236,3 +302,12 @@ class TestUnitServerBookPlacesClass:
         result, message = save_booking(club_fixture[0], competition_fixture[0], 7)
         assert result == False
         assert message == "enter less places!"
+
+        result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
+        assert result == False
+        assert message == "too late the competition is over"
+
+        competition_fixture[0].update({'date':"2025-10-22 13:30:00"})
+        result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
+        assert result == True
+        assert message == "Great-booking complete!"

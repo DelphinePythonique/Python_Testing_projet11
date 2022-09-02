@@ -10,7 +10,7 @@ from tests.conftest import (
     CLUB_OK,
     QUANTITY_PLACES_OK,
     QUANTITY_PLACES_SUP_AVAILABLE,
-    QUANTITY_POINTS_SUP_AVAILABLE,
+    QUANTITY_POINTS_SUP_AVAILABLE, COMPETITION2_OK,
 )
 
 
@@ -21,8 +21,8 @@ class TestFunctionnalServerDisplayClubClass:
 
     @pytest.mark.nondestructive
     def test_book(self, live_server, selenium):
-        selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
-        assert "Booking for competition test1 || GUDLFT" in selenium.title
+        selenium.get(f"http://localhost:5002/book/{COMPETITION2_OK}/{CLUB_OK}")
+        assert "Booking for competition test2 || GUDLFT" in selenium.title
 
         email_input = selenium.find_element(By.NAME, "places")
         email_input.clear()
@@ -32,8 +32,8 @@ class TestFunctionnalServerDisplayClubClass:
 
     @pytest.mark.nondestructive
     def test_book_to_many_places(self, live_server, selenium):
-        selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
-        assert "Booking for competition test1 || GUDLFT" in selenium.title
+        selenium.get(f"http://localhost:5002/book/{COMPETITION2_OK}/{CLUB_OK}")
+        assert "Booking for competition test2 || GUDLFT" in selenium.title
 
         email_input = selenium.find_element(By.NAME, "places")
         email_input.clear()
@@ -43,8 +43,8 @@ class TestFunctionnalServerDisplayClubClass:
 
     @pytest.mark.nondestructive
     def test_book_zero_place(self, live_server, selenium):
-        selenium.get(f"http://localhost:5002/book/{COMPETITION_OK}/{CLUB_OK}")
-        assert "Booking for competition test1 || GUDLFT" in selenium.title
+        selenium.get(f"http://localhost:5002/book/{COMPETITION2_OK}/{CLUB_OK}")
+        assert "Booking for competition test2 || GUDLFT" in selenium.title
 
         email_input = selenium.find_element(By.NAME, "places")
         email_input.clear()

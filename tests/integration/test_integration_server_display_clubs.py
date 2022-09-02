@@ -20,7 +20,7 @@ class TestIntegrationServerDisplayClubClass:
 
 
         assert b"competition test1" in response.data
-        assert b"Date: 2020-10-22 13:30:00" in response.data
+        assert b"Date: 2050-10-22 13:30:00" in response.data
 
 
 

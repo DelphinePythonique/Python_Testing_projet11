@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 
@@ -6,6 +7,25 @@ from utils import DataManager, ClubCompetition
 
 MAX_PLACE_PER_BOOKING = 12
 
+
+app = Flask(__name__)
+if os.environ["FLASK_ENV"] == "development":
+    app.config.from_pyfile("./settings/dev.cfg")
+elif os.environ["FLASK_ENV"] == "testing":
+    app.config.from_pyfile("./settings/test.cfg")
+else:
+    app.config.from_pyfile("./settings/prod.cfg")
+
+@app.template_filter("is_in_the_past")
+def is_in_the_past(date_to_check):
+    if isinstance(date_to_check, str):
+        try:
+            date_to_check = datetime.strptime(date_to_check, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return True
+    if date_to_check < datetime.now():
+        return True
+    return False
 
 def save_competition_table(competition, booked_places):
     data_manager = DataManager(app)
@@ -48,7 +68,9 @@ def save_booking(club, competition, booked_places):
         int(competition["numberOfPlaces"]),
         int(club["points"]),
         club_competitions.total_booked_places,
+        competition['date']
     )
+
     if not booking_is_allowed_:
         return False, message
 
@@ -65,13 +87,16 @@ def booking_is_allowed(
     number_of_places: int,
     club_points: int,
     total_booked_places: int,
+    competition_date: str
 ):
     if places_required <= 0:
         return False, "booking must be superior to 0"
-    elif places_required > max_place_for_booking(
+    if places_required > max_place_for_booking(
         number_of_places, club_points, total_booked_places
     ):
         return False, "enter less places!"
+    if is_in_the_past(competition_date):
+        return False, "too late the competition is over"
     else:
         return True, "booking must be save"
 
@@ -89,14 +114,6 @@ def max_place_for_booking(
     except TypeError:
         return 0
 
-
-app = Flask(__name__)
-if os.environ["FLASK_ENV"] == "development":
-    app.config.from_pyfile("./settings/dev.cfg")
-elif os.environ["FLASK_ENV"] == "testing":
-    app.config.from_pyfile("./settings/test.cfg")
-else:
-    app.config.from_pyfile("./settings/prod.cfg")
 
 
 @app.route("/")
@@ -142,7 +159,14 @@ def book(competition, club):
             render_template("welcome.html", club=found_club, competitions=competitions),
             404,
         )
+    if is_in_the_past(found_competition['date']):
+        competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
 
+        flash("too late the competition is over")
+        return (
+            render_template("welcome.html", club=found_club, competitions=competitions),
+            404,
+        )
     return render_template(
         "booking.html", club=found_club, competition=found_competition
     )

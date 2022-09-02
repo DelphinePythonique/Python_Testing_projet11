@@ -130,7 +130,7 @@ def competition_fixture():
         {
             "name": "competition test2",
             "date": "2020-10-22 13:30:00",
-            "numberOfPlaces": "13",
+            "numberOfPlaces": "6",
         }
     ]
     yield data

@@ -3,6 +3,8 @@ import json
 import os.path
 
 
+
+
 class DataManager:
     class TableName(enum.Enum):
         CLUBS = "clubs"
@@ -83,10 +85,9 @@ class ClubCompetition(Table):
 
     @property
     def total_booked_places(self):
-
         total = 0
         for booking in self.filter(
-            {"club": self.club['name'], "competition": self.competition['name']}
+                {"club": self.club['name'], "competition": self.competition['name']}
         ):
             total += booking['booked_places']
         return total
