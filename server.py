@@ -198,6 +198,9 @@ def purchasePlaces():
     is_saved, message = save_booking(found_club, found_competition, places_required)
     flash(message)
     if is_saved:
+        found_club = data_manager.tables[data_manager.TableName.CLUBS].filter_first_element(
+            {"name": request.form["club"]}
+        )
         competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
         return render_template(
             "welcome.html", club=found_club, competitions=competitions
