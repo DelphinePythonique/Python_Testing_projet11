@@ -61,13 +61,13 @@ def save_booking_table(club_name, competition_name, booked_places):
 def save_booking(club, competition, booked_places):
     data_manager = DataManager(app)
     club_competitions = ClubCompetition(
-        data_manager, club, competition,
+        data_manager
     )
     booking_is_allowed_, message = booking_is_allowed(
         booked_places,
         int(competition["numberOfPlaces"]),
         int(club["points"]),
-        club_competitions.total_booked_places,
+        club_competitions.total_booked_places_per_competition_and_club(club,competition),
         competition['date']
     )
 

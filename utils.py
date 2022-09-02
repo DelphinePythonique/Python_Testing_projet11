@@ -83,17 +83,18 @@ class Club(Table):
 
 class ClubCompetition(Table):
 
-    def __init__(self, manager, club, competition):
-        self.club = club
-        self.competition = competition
+    def __init__(self, manager):
+
         super().__init__(manager, manager.TableName.BOOKINGS.value)
 
-    @property
-    def total_booked_places_per_competition_and_club(self):
+
+    def total_booked_places_per_competition_and_club(self, club, competition):
         total = 0
+
         for booking in self.filter(
-                {"club": self.club['name'], "competition": self.competition['name']}
+                {"club": club['name'], "competition": competition['name']}
         ):
+
             total += booking['booked_places']
         return total
 

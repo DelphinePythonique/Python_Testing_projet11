@@ -136,6 +136,7 @@ def competition_fixture():
     yield data
 
 
+
 @pytest.fixture
 def clubs_schema_fixture():
     schema = {

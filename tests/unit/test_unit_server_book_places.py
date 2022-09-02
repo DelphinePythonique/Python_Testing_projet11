@@ -242,6 +242,7 @@ class TestUnitServerBookPlacesClass:
 
     def test_save_competition_table(self, app_test, mocker, competition_fixture):
         mocker.patch("server.app", app_test)
+        competition_fixture[0].update({'date': "2050-10-22 13:30:00"})
         save_competition_table(competition_fixture[0], 2)
         file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{COMPETITIONS_TABLE}.json"
         with open(file_path) as c:
@@ -307,7 +308,9 @@ class TestUnitServerBookPlacesClass:
         assert result == False
         assert message == "too late the competition is over"
 
-        competition_fixture[0].update({'date':"2025-10-22 13:30:00"})
+        competition_fixture[0].update({'date':"2050-10-22 13:30:00"})
         result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
         assert result == True
         assert message == "Great-booking complete!"
+
+

@@ -14,7 +14,7 @@ from tests.conftest import (
     EMAIL_OK,
     refresh_datafiles,
     BOOKINGS_TABLE,
-    clubs_fixture,
+    competition_fixture
 )
 from utils import DataManager, Table, ClubCompetition
 
@@ -140,19 +140,17 @@ class TestClubCompetitionClass:
     def test_init(self, club_fixture, competition_fixture):
         data_manager_mocker = DataManagerMocker()
         club_competition = ClubCompetition(
-            data_manager_mocker, club_fixture[0], competition_fixture[0],
+            data_manager_mocker
         )
         assert club_competition.name == BOOKINGS_TABLE
         assert club_competition.app == data_manager_mocker.app
-        assert club_competition.club["name"] == "test1"
-        assert club_competition.competition["name"] == "competition test2"
+
 
     def test_total_booked_places(self, club_fixture, competition_fixture):
         data_manager_mocker = DataManagerMocker()
-        club_competition = ClubCompetition(
-            data_manager_mocker, club_fixture[0], competition_fixture[0],
-        )
-        assert (
-            club_competition.total_booked_places
-            == 7
-        )
+        club_competition = ClubCompetition(data_manager_mocker)
+        club = club_fixture[0]
+        competition = competition_fixture[0]
+
+        assert club_competition.total_booked_places_per_competition_and_club(club, competition)==7
+
