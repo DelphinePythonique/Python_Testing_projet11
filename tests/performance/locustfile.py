@@ -1,6 +1,6 @@
 from locust import HttpUser, task, between
 
-from tests.conftest import EMAIL_OK, CLUB_OK, COMPETITION_OK
+from tests.conftest import EMAIL_OK, CLUB_OK, COMPETITION2_OK
 
 
 class ServerPerfTest(HttpUser):
@@ -16,8 +16,12 @@ class ServerPerfTest(HttpUser):
 
     @task(8)
     def book(self):
-        self.client.get("/book/competition test1/test1")
+        self.client.get(f"/book/{COMPETITION2_OK}/{CLUB_OK}")
 
     @task(5)
     def purchase_place(self):
-        self.client.post("/purchasePlaces", {"club": CLUB_OK, "competition": COMPETITION_OK, "places": 1})
+        self.client.post("/purchasePlaces", {"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 1})
+
+    @task(5)
+    def display_clubs(self):
+        self.client.get("/display_clubs")

@@ -7,7 +7,6 @@ from utils import DataManager, ClubCompetition
 
 MAX_PLACE_PER_BOOKING = 12
 
-
 app = Flask(__name__)
 if os.environ["FLASK_ENV"] == "development":
     app.config.from_pyfile("./settings/dev.cfg")
@@ -15,6 +14,7 @@ elif os.environ["FLASK_ENV"] == "testing":
     app.config.from_pyfile("./settings/test.cfg")
 else:
     app.config.from_pyfile("./settings/prod.cfg")
+
 
 @app.template_filter("is_in_the_past")
 def is_in_the_past(date_to_check):
@@ -26,6 +26,7 @@ def is_in_the_past(date_to_check):
     if date_to_check < datetime.now():
         return True
     return False
+
 
 def save_competition_table(competition, booked_places):
     data_manager = DataManager(app)
@@ -67,7 +68,7 @@ def save_booking(club, competition, booked_places):
         booked_places,
         int(competition["numberOfPlaces"]),
         int(club["points"]),
-        club_competitions.total_booked_places_per_competition_and_club(club,competition),
+        club_competitions.total_booked_places_per_competition_and_club(club['name'], competition['name']),
         competition['date']
     )
 
@@ -78,21 +79,20 @@ def save_booking(club, competition, booked_places):
     save_club_table(club, booked_places)
     save_booking_table(club["name"], competition["name"], booked_places)
 
-
     return True, "Great-booking complete!"
 
 
 def booking_is_allowed(
-    places_required: int,
-    number_of_places: int,
-    club_points: int,
-    total_booked_places: int,
-    competition_date: str
+        places_required: int,
+        number_of_places: int,
+        club_points: int,
+        total_booked_places: int,
+        competition_date: str
 ):
     if places_required <= 0:
         return False, "booking must be superior to 0"
     if places_required > max_place_for_booking(
-        number_of_places, club_points, total_booked_places
+            number_of_places, club_points, total_booked_places
     ):
         return False, "enter less places!"
     if is_in_the_past(competition_date):
@@ -102,7 +102,7 @@ def booking_is_allowed(
 
 
 def max_place_for_booking(
-    number_of_places_competition, points_club, total_booked_places
+        number_of_places_competition, points_club, total_booked_places
 ):
     try:
 
@@ -113,7 +113,6 @@ def max_place_for_booking(
         )
     except TypeError:
         return 0
-
 
 
 @app.route("/")
@@ -215,16 +214,19 @@ def purchasePlaces():
         )
 
 
-# TODO: Add route for points display
-@app.route("/display_club")
+@app.route("/display_clubs")
 def display_club():
     data_manager = DataManager(app)
-    if not "username"  in session:
+    if "username" not in session:
         return redirect(url_for("index"))
     clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
+    bookings = ClubCompetition(data_manager)
+    for club in clubs:
+        club['competitions'] = bookings.total_booked_places_per_club_all_competitions(club['name'])
     return render_template(
-        "display_club.html.html", clubs=clubs
+        "display_club.html", clubs=clubs
     )
+
 
 @app.route("/logout")
 def logout():

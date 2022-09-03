@@ -14,7 +14,7 @@ from tests.conftest import (
     EMAIL_OK,
     refresh_datafiles,
     BOOKINGS_TABLE,
-    competition_fixture
+    competition_fixture,
 )
 from utils import DataManager, Table, ClubCompetition
 
@@ -139,18 +139,41 @@ class TestClubCompetitionClass:
 
     def test_init(self, club_fixture, competition_fixture):
         data_manager_mocker = DataManagerMocker()
-        club_competition = ClubCompetition(
-            data_manager_mocker
-        )
+        club_competition = ClubCompetition(data_manager_mocker)
         assert club_competition.name == BOOKINGS_TABLE
         assert club_competition.app == data_manager_mocker.app
 
-
-    def test_total_booked_places(self, club_fixture, competition_fixture):
+    def test_total_booked_places_per_competition_and_club(
+        self, club_fixture, competition_fixture
+    ):
         data_manager_mocker = DataManagerMocker()
         club_competition = ClubCompetition(data_manager_mocker)
         club = club_fixture[0]
         competition = competition_fixture[0]
 
-        assert club_competition.total_booked_places_per_competition_and_club(club, competition)==7
+        assert (
+            club_competition.total_booked_places_per_competition_and_club(
+                club["name"], competition["name"]
+            )
+            == 7
+        )
 
+    def test_total_booked_places_per_club_all_competitions(self, club_fixture):
+        data_manager_mocker = DataManagerMocker()
+        club_competition = ClubCompetition(data_manager_mocker)
+        club = club_fixture[0]
+        assert club_competition.total_booked_places_per_club_all_competitions(
+            club["name"]
+        ) == {"competition test1": 2, "competition test2": 7}
+
+    def test__calculate(self):
+        bookings = []
+        assert 0 == ClubCompetition._calculate(bookings)
+
+        bookings = [
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
+            {"club": "test1", "competition": "competition test2", "booked_places": 1},
+            {"club": "test1", "competition": "competition test2", "booked_places": 2},
+        ]
+
+        assert 5 == ClubCompetition._calculate(bookings)

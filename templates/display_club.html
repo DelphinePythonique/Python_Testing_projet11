@@ -24,7 +24,10 @@
         <tr>
             <td style="border-style: solid">{{club['name']}}</td>
             <td style="border-style: solid">{{club['points']}}</td>
-        <td></td>
+            <td style="border-style: solid"><table>{% for competition in club['competitions'] %}
+                <tr><td>{{ competition }}:</td><td>{{ club['competitions'][competition] }}</td></tr>
+                 {% endfor %}
+            </table></td>
         </tr>
 
         {% endfor %}
