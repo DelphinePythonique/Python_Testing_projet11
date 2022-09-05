@@ -140,5 +140,5 @@ class TestIntegrationServerBookPlaceClass:
         flash_messages = get_flashed_messages()
         assert "Great-booking complete!" in flash_messages
         assert b'Summary | GUDLFT Registration' in response.data
-        assert b"Points available: 12" in response.data
+        assert b"Points available: 10" in response.data
 

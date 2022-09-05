@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, redirect, flash, url_for, ses
 from utils import DataManager, ClubCompetition
 
 MAX_PLACE_PER_BOOKING = 12
+POINTS_PER_PLACE = 3
 
 app = Flask(__name__)
 if os.environ["FLASK_ENV"] == "development":
@@ -42,7 +43,7 @@ def save_club_table(club, booked_places):
     clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
     for c in clubs:
         if c["name"] == club["name"]:
-            c.update({"points": str(int(c["points"]) - int(booked_places))})
+            c.update({"points": str(int(c["points"]) - (int(booked_places)*POINTS_PER_PLACE))})
     data_manager.tables[data_manager.TableName.CLUBS].save(clubs)
 
 
@@ -109,7 +110,7 @@ def max_place_for_booking(
         return min(
             MAX_PLACE_PER_BOOKING - total_booked_places,
             number_of_places_competition,
-            points_club,
+            points_club//POINTS_PER_PLACE,
         )
     except TypeError:
         return 0
