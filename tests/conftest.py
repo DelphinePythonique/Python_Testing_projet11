@@ -136,6 +136,7 @@ def competition_fixture():
     yield data
 
 
+
 @pytest.fixture
 def clubs_schema_fixture():
     schema = {
@@ -185,6 +186,11 @@ class TableNameMocker(enum.Enum):
 
 
 class DataManagerMocker:
+    class TableName(enum.Enum):
+        CLUBS = "clubs"
+        COMPETITIONS = "competitions"
+        BOOKINGS = "bookings"
+
     @property
     def app(self):
         os.environ.update(FLASK_ENV="test")
