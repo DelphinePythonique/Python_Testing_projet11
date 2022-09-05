@@ -21,30 +21,32 @@ from tests.conftest import (
 
 
 class TestUnitServerBookPlacesClass:
+
+    #  "number_of_places_competition, points_club, total_booked_places, expected"
     max_place_for_booking_datas = [
-        (25, 5, 11, 1),  # test MAX_PLACE_PER_BOOKING
-        (25, 5, 0, 5),  # test club's points
-        (25, 14, 0, 12),  # test MAX_PLACE_PER_BOOKING
-        (5, 14, 12, 0),  # test MAX_PLACE_PER_BOOKING
-        (5, 14, 0, 5),  # test competition's places
+        (25, 11, 11, 1),  # test MAX_PLACE_PER_BOOKING
+        (25, 11, 0, 3),  # test club's points
+        (25, 64, 0, 12),  # test MAX_PLACE_PER_BOOKING
+        (5, 24, 12, 0),  # test MAX_PLACE_PER_BOOKING
+        (5, 24, 0, 5),  # test competition's places
         ("5", 14, 0, 0),  # test type error
         (5, "14", 0, 0),  # test type error
         (5, 14, "0", 0),  # test type error
     ]
-
+    # "places_required, number_of_places, club_points,total_booked_places,date_competition, expected",
     booking_is_allowed_datas = [
         (
             1,
             25,
-            5,
+            11,
             11,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test MAX_PLACE_PER_BOOKING => eq
         (
-            5,
+            3,
             25,
-            5,
+            11,
             0,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
@@ -52,7 +54,7 @@ class TestUnitServerBookPlacesClass:
         (
             12,
             25,
-            14,
+            64,
             0,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
@@ -60,7 +62,7 @@ class TestUnitServerBookPlacesClass:
         (
             0,
             5,
-            14,
+            24,
             12,
             "2020-10-22 13:30:00",
             (False, "booking must be superior to 0"),
@@ -68,7 +70,7 @@ class TestUnitServerBookPlacesClass:
         (
             5,
             5,
-            14,
+            24,
             0,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
@@ -108,7 +110,7 @@ class TestUnitServerBookPlacesClass:
         (
             4,
             25,
-            5,
+            25,
             0,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
@@ -116,14 +118,14 @@ class TestUnitServerBookPlacesClass:
         (
             11,
             25,
-            14,
+            64,
             0,
             "2050-10-22 13:30:00",
             (True, "booking must be save"),
         ),  # test MAX_PLACE_PER_BOOKING => inf
         (
             4,
-            5,
+            25,
             14,
             0,
             "2050-10-22 13:30:00",
@@ -269,7 +271,7 @@ class TestUnitServerBookPlacesClass:
             list_dataset = json.load(c)[CLUBS_TABLE]
 
         assert list_dataset == [
-            {"name": "test1", "email": "test1@project11.fr", "points": "11"},
+            {"name": "test1", "email": "test1@project11.fr", "points": "7"},
             {"name": "test2", "email": "test2@project11.fr", "points": "4"},
             {"name": "test3", "email": "test3@project11.fr", "points": "12"},
         ]
