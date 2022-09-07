@@ -2,7 +2,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from tests.conftest import EMAIL_OK, EMAIL_KO, COMPETITION_OK, refresh_datafiles
+from tests.conftest import EMAIL_OK, refresh_datafiles
 
 
 @pytest.mark.usefixtures("live_server")
@@ -24,4 +24,3 @@ class TestFunctionnalServerDisplayClubClass:
 
         selenium.get("http://localhost:5002/display_clubs")
         assert "Clubs| GUDLFT" in selenium.title
-

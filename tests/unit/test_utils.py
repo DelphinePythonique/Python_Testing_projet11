@@ -1,10 +1,8 @@
 import json
 import os.path
-from datetime import datetime
 
 from jsonschema.validators import validate
 
-from server import is_in_the_past
 from tests.conftest import (
     TableNameMocker,
     DataManagerMocker,
@@ -14,21 +12,8 @@ from tests.conftest import (
     EMAIL_OK,
     refresh_datafiles,
     BOOKINGS_TABLE,
-    competition_fixture,
 )
 from utils import DataManager, Table, ClubCompetition
-
-
-def test_is_in_the_past():
-    assert is_in_the_past("2020-XX-22 13:30:00")
-    assert is_in_the_past("2020-10-22 13:30:00")
-    assert not is_in_the_past("2050-10-22 13:30:00")
-    assert is_in_the_past(datetime.now())
-
-    datetime_ = datetime.strptime("2020-10-22 13:30:00", "%Y-%m-%d %H:%M:%S")
-    assert is_in_the_past(datetime_)
-    datetime_ = datetime.strptime("2050-10-22 13:30:00", "%Y-%m-%d %H:%M:%S")
-    assert not is_in_the_past(datetime_)
 
 
 class TestDatamanagerClass:

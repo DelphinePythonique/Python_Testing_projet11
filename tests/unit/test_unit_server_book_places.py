@@ -15,7 +15,6 @@ from tests.conftest import (
     DATABASE_DIRECTORY_FOR_TEST,
     COMPETITIONS_TABLE,
     CLUBS_TABLE,
-    DataManagerMocker,
     BOOKINGS_TABLE,
 )
 
@@ -244,7 +243,7 @@ class TestUnitServerBookPlacesClass:
 
     def test_save_competition_table(self, app_test, mocker, competition_fixture):
         mocker.patch("server.app", app_test)
-        competition_fixture[0].update({'date': "2050-10-22 13:30:00"})
+        competition_fixture[0].update({"date": "2050-10-22 13:30:00"})
         save_competition_table(competition_fixture[0], 2)
         file_path = f"{DATABASE_DIRECTORY_FOR_TEST}{COMPETITIONS_TABLE}.json"
         with open(file_path) as c:
@@ -299,20 +298,18 @@ class TestUnitServerBookPlacesClass:
         mocker.patch("server.app", app_test)
 
         result, message = save_booking(club_fixture[0], competition_fixture[0], 0)
-        assert result == False
+        assert result is False
         assert message == "booking must be superior to 0"
 
         result, message = save_booking(club_fixture[0], competition_fixture[0], 7)
-        assert result == False
+        assert result is False
         assert message == "enter less places!"
 
         result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
-        assert result == False
+        assert result is False
         assert message == "too late the competition is over"
 
-        competition_fixture[0].update({'date':"2050-10-22 13:30:00"})
+        competition_fixture[0].update({"date": "2050-10-22 13:30:00"})
         result, message = save_booking(club_fixture[0], competition_fixture[0], 2)
-        assert result == True
+        assert result is True
         assert message == "Great-booking complete!"
-
-

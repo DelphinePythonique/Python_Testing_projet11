@@ -2,7 +2,7 @@ import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-from tests.conftest import EMAIL_OK, EMAIL_KO, COMPETITION_OK, refresh_datafiles
+from tests.conftest import EMAIL_OK, EMAIL_KO, refresh_datafiles
 
 
 @pytest.mark.usefixtures("live_server")
@@ -36,7 +36,6 @@ class TestFunctionnalServerDisplayClubClass:
         assert "GUDLFT Registration" in selenium.title
         message_list = selenium.find_element(By.TAG_NAME, "li")
         assert message_list.text == "email not existing"
-
 
     def test_book_and_click_on_link(self, live_server, selenium):
 

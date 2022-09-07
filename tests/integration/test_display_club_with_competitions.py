@@ -1,5 +1,3 @@
-
-
 from tests.conftest import refresh_datafiles
 
 
@@ -8,12 +6,12 @@ class TestIntegrationServerBookPlaceClass:
         refresh_datafiles()
 
     def test_display_club(self, client):
-        response = client.get(f"/display_clubs")
-        assert  response.status_code == 302
+        response = client.get("/display_clubs")
+        assert response.status_code == 302
 
         with client.session_transaction() as session:
-            session['username'] = 'fakeemail'
-        response = client.get(f"/display_clubs")
+            session["username"] = "fakeemail"
+        response = client.get("/display_clubs")
         assert b"Clubs" in response.data
         assert b"available points" in response.data
         assert b"competitions" in response.data
