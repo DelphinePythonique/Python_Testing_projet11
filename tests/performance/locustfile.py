@@ -20,7 +20,10 @@ class ServerPerfTest(HttpUser):
 
     @task(5)
     def purchase_place(self):
-        self.client.post("/purchasePlaces", {"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 1})
+        self.client.post(
+            "/purchasePlaces",
+            {"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 1},
+        )
 
     @task(5)
     def display_clubs(self):

@@ -108,5 +108,3 @@ class ClubCompetition(Table):
             {"club": club_name, "competition": competition_name}
         )
         return ClubCompetition._calculate(bookings_for_this_competition)
-
-

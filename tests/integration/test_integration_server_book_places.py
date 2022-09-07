@@ -1,7 +1,13 @@
 from flask import get_flashed_messages
 
-from tests.conftest import COMPETITION_KO, COMPETITION_OK, CLUB_OK, CLUB_KO, DATABASE_DIRECTORY_FOR_TEST, \
-    refresh_datafiles, COMPETITION2_OK
+from tests.conftest import (
+    COMPETITION_KO,
+    COMPETITION_OK,
+    CLUB_OK,
+    CLUB_KO,
+    refresh_datafiles,
+    COMPETITION2_OK,
+)
 
 
 class TestIntegrationServerBookPlaceClass:
@@ -23,7 +29,7 @@ class TestIntegrationServerBookPlaceClass:
             f'type="hidden" name="competition" value="{COMPETITION2_OK}"'
             in response.data.decode("utf-8")
         )
-        assert f'type="number" name="places"' in response.data.decode("utf-8")
+        assert 'type="number" name="places"' in response.data.decode("utf-8")
 
         response = client.get(f"/book/{COMPETITION_KO}/{CLUB_OK}")
 
@@ -62,7 +68,8 @@ class TestIntegrationServerBookPlaceClass:
 
     def test_purchase_places_with_club_ko(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_KO, "competition": COMPETITION_OK, "places": 1}
+            "/purchasePlaces",
+            data={"club": CLUB_KO, "competition": COMPETITION_OK, "places": 1},
         )
         assert response.status_code == 404
 
@@ -72,7 +79,8 @@ class TestIntegrationServerBookPlaceClass:
 
     def test_purchase_places_with_competition_ko(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION_KO, "places": 1}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION_KO, "places": 1},
         )
         assert response.status_code == 404
 
@@ -85,39 +93,41 @@ class TestIntegrationServerBookPlaceClass:
         assert b"Date: 2020-03-27 10:00:00" in response.data
         assert b"Number of Places:" in response.data
 
-
         assert b"competition test1" in response.data
         assert b"Date: 2050-10-22 13:30:00" in response.data
 
-
     def test_purchase_places_more_than_available(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 7}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 7},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
         assert "enter less places!" in flash_messages
-        assert f'type="number" name="places"' in response.data.decode("utf-8")
+        assert 'type="number" name="places"' in response.data.decode("utf-8")
 
     def test_purchase_places_more_than_points(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 50}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 50},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
         assert "enter less places!" in flash_messages
-        assert f'type="number" name="places"' in response.data.decode("utf-8")
+        assert 'type="number" name="places"' in response.data.decode("utf-8")
 
     def test_purchase_places_more_than_twelve_points(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 2}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 2},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
         assert "Great-booking complete!" in flash_messages
 
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 11}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 11},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
@@ -125,20 +135,21 @@ class TestIntegrationServerBookPlaceClass:
 
     def test_purchase_places_zero_place(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 0}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION_OK, "places": 0},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
         assert "booking must be superior to 0" in flash_messages
-        assert f'type="number" name="places"' in response.data.decode("utf-8")
+        assert 'type="number" name="places"' in response.data.decode("utf-8")
 
     def test_purchase_places(self, client):
         response = client.post(
-            "/purchasePlaces", data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 1}
+            "/purchasePlaces",
+            data={"club": CLUB_OK, "competition": COMPETITION2_OK, "places": 1},
         )
         assert response.status_code == 200
         flash_messages = get_flashed_messages()
         assert "Great-booking complete!" in flash_messages
-        assert b'Summary | GUDLFT Registration' in response.data
+        assert b"Summary | GUDLFT Registration" in response.data
         assert b"Points available: 10" in response.data
-

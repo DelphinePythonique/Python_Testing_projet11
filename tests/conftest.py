@@ -3,7 +3,6 @@ import os
 
 import pytest
 
-os.environ["FLASK_ENV"] = "testing"
 
 from server import app as myapp
 
@@ -27,7 +26,7 @@ QUANTITY_POINTS_SUP_AVAILABLE = 14
 def client():
     os.environ.update(FLASK_ENV="testing")
     app = myapp
-    #app.config.from_pyfile("./settings/test.cfg")
+    # app.config.from_pyfile("./settings/test.cfg")
     with app.test_client() as client:
         yield client
 
@@ -36,15 +35,17 @@ def client():
 def app():
     os.environ.update(FLASK_ENV="testing")
     app = myapp
-    #app.config.from_pyfile("./settings/test.cfg")
+    # app.config.from_pyfile("./settings/test.cfg")
     return app
+
 
 @pytest.fixture(scope="session")
 def app_test():
     os.environ.update(FLASK_ENV="testing")
     app = myapp
-    #app.config.from_pyfile("./settings/test.cfg")
+    # app.config.from_pyfile("./settings/test.cfg")
     return app
+
 
 @pytest.fixture(scope="session")
 def app_dev():
@@ -52,23 +53,16 @@ def app_dev():
     app = myapp
     mypath = app.config["DB_PATH"]
     print(f"***************************MA CONFO = {mypath}")
-    #app.config.from_pyfile("./settings/test.cfg")
+    # app.config.from_pyfile("./settings/test.cfg")
     return app
+
+
 @pytest.fixture(scope="session")
 def app_prod():
     os.environ.update(FLASK_ENV="prod")
     app = myapp
-    #app.config.from_pyfile("./settings/test.cfg")
+    # app.config.from_pyfile("./settings/test.cfg")
     return app
-
-@pytest.fixture
-def clubs_fixture():
-    data = [
-        {"name": "CLUB A", "email": "john@gudlft.ok", "points": "13"},
-        {"name": "CLUB B", "email": "admin@irontemple.com", "points": "4"},
-        {"name": "CLUB C", "email": "kate@shelifts.co.uk", "points": "12"},
-    ]
-    yield data
 
 
 @pytest.fixture
@@ -77,52 +71,39 @@ def competitions_fixture():
         {
             "name": "competition test1",
             "date": "2020-03-27 10:00:00",
-            "numberOfPlaces": "6"
+            "numberOfPlaces": "6",
         },
         {
             "name": "competition test2",
             "date": "2020-10-22 13:30:00",
-            "numberOfPlaces": "13"
-        }
+            "numberOfPlaces": "13",
+        },
     ]
     yield data
 
 
 @pytest.fixture
 def booking_fixture():
-    data = [{
-            "club": "test1",
-            "competition": "competition test2",
-            "booked_places": 2
-        }]
+    data = [{"club": "test1", "competition": "competition test2", "booked_places": 2}]
     yield data
+
 
 @pytest.fixture
 def club_fixture():
     data = [{"name": "test1", "email": "test1@project11.fr", "points": "13"}]
     yield data
 
+
 @pytest.fixture
 def clubs_fixture():
     data = [
-        {
-            "name": "test1",
-            "email": "test1@project11.fr",
-            "points": "5"
-        },
-        {
-            "name": "test2",
-            "email": "test2@project11.fr",
-            "points": "4"
-        },
-        {
-            "name": "test3",
-            "email": "test3@project11.fr",
-            "points": "12"
-        }
+        {"name": "test1", "email": "test1@project11.fr", "points": "5"},
+        {"name": "test2", "email": "test2@project11.fr", "points": "4"},
+        {"name": "test3", "email": "test3@project11.fr", "points": "12"},
     ]
 
     yield data
+
 
 @pytest.fixture
 def competition_fixture():
@@ -134,7 +115,6 @@ def competition_fixture():
         }
     ]
     yield data
-
 
 
 @pytest.fixture
@@ -195,7 +175,7 @@ class DataManagerMocker:
     def app(self):
         os.environ.update(FLASK_ENV="test")
         app = myapp
-        #app.config.from_pyfile("./settings/test.cfg")
+        # app.config.from_pyfile("./settings/test.cfg")
 
         return app
 

@@ -43,7 +43,13 @@ def save_club_table(club, booked_places):
     clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
     for c in clubs:
         if c["name"] == club["name"]:
-            c.update({"points": str(int(c["points"]) - (int(booked_places)*POINTS_PER_PLACE))})
+            c.update(
+                {
+                    "points": str(
+                        int(c["points"]) - (int(booked_places) * POINTS_PER_PLACE)
+                    )
+                }
+            )
     data_manager.tables[data_manager.TableName.CLUBS].save(clubs)
 
 
@@ -62,15 +68,15 @@ def save_booking_table(club_name, competition_name, booked_places):
 
 def save_booking(club, competition, booked_places):
     data_manager = DataManager(app)
-    club_competitions = ClubCompetition(
-        data_manager
-    )
+    club_competitions = ClubCompetition(data_manager)
     booking_is_allowed_, message = booking_is_allowed(
         booked_places,
         int(competition["numberOfPlaces"]),
         int(club["points"]),
-        club_competitions.total_booked_places_per_competition_and_club(club['name'], competition['name']),
-        competition['date']
+        club_competitions.total_booked_places_per_competition_and_club(
+            club["name"], competition["name"]
+        ),
+        competition["date"],
     )
 
     if not booking_is_allowed_:
@@ -84,16 +90,16 @@ def save_booking(club, competition, booked_places):
 
 
 def booking_is_allowed(
-        places_required: int,
-        number_of_places: int,
-        club_points: int,
-        total_booked_places: int,
-        competition_date: str
+    places_required: int,
+    number_of_places: int,
+    club_points: int,
+    total_booked_places: int,
+    competition_date: str,
 ):
     if places_required <= 0:
         return False, "booking must be superior to 0"
     if places_required > max_place_for_booking(
-            number_of_places, club_points, total_booked_places
+        number_of_places, club_points, total_booked_places
     ):
         return False, "enter less places!"
     if is_in_the_past(competition_date):
@@ -103,14 +109,14 @@ def booking_is_allowed(
 
 
 def max_place_for_booking(
-        number_of_places_competition, points_club, total_booked_places
+    number_of_places_competition, points_club, total_booked_places
 ):
     try:
 
         return min(
             MAX_PLACE_PER_BOOKING - total_booked_places,
             number_of_places_competition,
-            points_club//POINTS_PER_PLACE,
+            points_club // POINTS_PER_PLACE,
         )
     except TypeError:
         return 0
@@ -131,7 +137,7 @@ def showSummary():
     ].filter_first_element({"email": email})
 
     if club_selected:
-        session['username'] = email
+        session["username"] = email
         return render_template(
             "welcome.html", club=club_selected, competitions=competitions_
         )
@@ -161,7 +167,7 @@ def book(competition, club):
             render_template("welcome.html", club=found_club, competitions=competitions),
             404,
         )
-    if is_in_the_past(found_competition['date']):
+    if is_in_the_past(found_competition["date"]):
         competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
 
         flash("too late the competition is over")
@@ -200,9 +206,9 @@ def purchasePlaces():
     is_saved, message = save_booking(found_club, found_competition, places_required)
     flash(message)
     if is_saved:
-        found_club = data_manager.tables[data_manager.TableName.CLUBS].filter_first_element(
-            {"name": request.form["club"]}
-        )
+        found_club = data_manager.tables[
+            data_manager.TableName.CLUBS
+        ].filter_first_element({"name": request.form["club"]})
 
         competitions = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
         return render_template(
@@ -216,17 +222,17 @@ def purchasePlaces():
 
 
 @app.route("/display_clubs")
-def display_club():
+def display_clubs():
     data_manager = DataManager(app)
     if "username" not in session:
         return redirect(url_for("index"))
     clubs = data_manager.tables[data_manager.TableName.CLUBS].all()
     bookings = ClubCompetition(data_manager)
     for club in clubs:
-        club['competitions'] = bookings.total_booked_places_per_club_all_competitions(club['name'])
-    return render_template(
-        "display_club.html", clubs=clubs
-    )
+        club["competitions"] = bookings.total_booked_places_per_club_all_competitions(
+            club["name"]
+        )
+    return render_template("display_club.html", clubs=clubs)
 
 
 @app.route("/logout")
