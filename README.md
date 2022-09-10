@@ -42,10 +42,25 @@
     * competitions.json - list of competitions
     * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
 
-5. Testing
+5. Testing 
 
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
-
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
-
+   You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
+   We also like to show how well we're testing, so there's a module called 
+   [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+   #### Installation des dépendances pour le testing  
+   ```bash
+         pip install -r requirements_dev.txt
+   ```
+   #### Usage de Flake8
+   ```bash
+      flake8 --format=html --htmldir=flake-report --exclude=env
+   ```
+   #### Usage de pytest 
+   ```bash
+      pytest -vv -s --cov --cov-report html --driver chrome --html pytest_report.html
+   ```
+   #### Usage de locust 
+   ```bash
+      locust -f tests/performance/locustfile.py
+   ```
+   
