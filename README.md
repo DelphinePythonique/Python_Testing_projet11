@@ -57,7 +57,7 @@
    ```
    #### Usage de pytest 
    ```bash
-      pytest -vv -s --cov --cov-report html --driver chrome --html pytest_report.html
+      pytest 
    ```
    #### Usage de locust 
    ```bash

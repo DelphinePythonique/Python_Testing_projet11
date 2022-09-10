@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Test Report</title>
+    <link href="assets/style.css" rel="stylesheet" type="text/css"/></head>
+  <body onLoad="init()">
+    <script>/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+function toArray(iter) {
+    if (iter === null) {
+        return null;
+    }
+    return Array.prototype.slice.call(iter);
+}
+
+function find(selector, elem) { // eslint-disable-line no-redeclare
+    if (!elem) {
+        elem = document;
+    }
+    return elem.querySelector(selector);
+}
+
+function findAll(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return toArray(elem.querySelectorAll(selector));
+}
+
+function sortColumn(elem) {
+    toggleSortStates(elem);
+    const colIndex = toArray(elem.parentNode.childNodes).indexOf(elem);
+    let key;
+    if (elem.classList.contains('result')) {
+        key = keyResult;
+    } else if (elem.classList.contains('links')) {
+        key = keyLink;
+    } else {
+        key = keyAlpha;
+    }
+    sortTable(elem, key(colIndex));
+}
+
+function showAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(showExtras);
+}
+
+function hideAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(hideExtras);
+}
+
+function showExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.remove('collapsed');
+    expandcollapse.classList.remove('expander');
+    expandcollapse.classList.add('collapser');
+}
+
+function hideExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.add('collapsed');
+    expandcollapse.classList.remove('collapser');
+    expandcollapse.classList.add('expander');
+}
+
+function showFilters() {
+    const filterItems = document.getElementsByClassName('filter');
+    for (let i = 0; i < filterItems.length; i++)
+        filterItems[i].hidden = false;
+}
+
+function addCollapse() {
+    // Add links for show/hide all
+    const resulttable = find('table#results-table');
+    const showhideall = document.createElement('p');
+    showhideall.innerHTML = '<a href="javascript:showAllExtras()">Show all details</a> / ' +
+                            '<a href="javascript:hideAllExtras()">Hide all details</a>';
+    resulttable.parentElement.insertBefore(showhideall, resulttable);
+
+    // Add show/hide link to each result
+    findAll('.col-result').forEach(function(elem) {
+        const collapsed = getQueryParameter('collapsed') || 'Passed';
+        const extras = elem.parentNode.nextElementSibling;
+        const expandcollapse = document.createElement('span');
+        if (extras.classList.contains('collapsed')) {
+            expandcollapse.classList.add('expander');
+        } else if (collapsed.includes(elem.innerHTML)) {
+            extras.classList.add('collapsed');
+            expandcollapse.classList.add('expander');
+        } else {
+            expandcollapse.classList.add('collapser');
+        }
+        elem.appendChild(expandcollapse);
+
+        elem.addEventListener('click', function(event) {
+            if (event.currentTarget.parentNode.nextElementSibling.classList.contains('collapsed')) {
+                showExtras(event.currentTarget);
+            } else {
+                hideExtras(event.currentTarget);
+            }
+        });
+    });
+}
+
+function getQueryParameter(name) {
+    const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function init () { // eslint-disable-line no-unused-vars
+    resetSortHeaders();
+
+    addCollapse();
+
+    showFilters();
+
+    sortColumn(find('.initial-sort'));
+
+    findAll('.sortable').forEach(function(elem) {
+        elem.addEventListener('click',
+            function() {
+                sortColumn(elem);
+            }, false);
+    });
+}
+
+function sortTable(clicked, keyFunc) {
+    const rows = findAll('.results-table-row');
+    const reversed = !clicked.classList.contains('asc');
+    const sortedRows = sort(rows, keyFunc, reversed);
+    /* Whole table is removed here because browsers acts much slower
+     * when appending existing elements.
+     */
+    const thead = document.getElementById('results-table-head');
+    document.getElementById('results-table').remove();
+    const parent = document.createElement('table');
+    parent.id = 'results-table';
+    parent.appendChild(thead);
+    sortedRows.forEach(function(elem) {
+        parent.appendChild(elem);
+    });
+    document.getElementsByTagName('BODY')[0].appendChild(parent);
+}
+
+function sort(items, keyFunc, reversed) {
+    const sortArray = items.map(function(item, i) {
+        return [keyFunc(item), i];
+    });
+
+    sortArray.sort(function(a, b) {
+        const keyA = a[0];
+        const keyB = b[0];
+
+        if (keyA == keyB) return 0;
+
+        if (reversed) {
+            return keyA < keyB ? 1 : -1;
+        } else {
+            return keyA > keyB ? 1 : -1;
+        }
+    });
+
+    return sortArray.map(function(item) {
+        const index = item[1];
+        return items[index];
+    });
+}
+
+function keyAlpha(colIndex) {
+    return function(elem) {
+        return elem.childNodes[1].childNodes[colIndex].firstChild.data.toLowerCase();
+    };
+}
+
+function keyLink(colIndex) {
+    return function(elem) {
+        const dataCell = elem.childNodes[1].childNodes[colIndex].firstChild;
+        return dataCell == null ? '' : dataCell.innerText.toLowerCase();
+    };
+}
+
+function keyResult(colIndex) {
+    return function(elem) {
+        const strings = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed',
+            'Skipped', 'Passed'];
+        return strings.indexOf(elem.childNodes[1].childNodes[colIndex].firstChild.data);
+    };
+}
+
+function resetSortHeaders() {
+    findAll('.sort-icon').forEach(function(elem) {
+        elem.parentNode.removeChild(elem);
+    });
+    findAll('.sortable').forEach(function(elem) {
+        const icon = document.createElement('div');
+        icon.className = 'sort-icon';
+        icon.textContent = 'vvv';
+        elem.insertBefore(icon, elem.firstChild);
+        elem.classList.remove('desc', 'active');
+        elem.classList.add('asc', 'inactive');
+    });
+}
+
+function toggleSortStates(elem) {
+    //if active, toggle between asc and desc
+    if (elem.classList.contains('active')) {
+        elem.classList.toggle('asc');
+        elem.classList.toggle('desc');
+    }
+
+    //if inactive, reset all other functions and add ascending active
+    if (elem.classList.contains('inactive')) {
+        resetSortHeaders();
+        elem.classList.remove('inactive');
+        elem.classList.add('active');
+    }
+}
+
+function isAllRowsHidden(value) {
+    return value.hidden == false;
+}
+
+function filterTable(elem) { // eslint-disable-line no-unused-vars
+    const outcomeAtt = 'data-test-result';
+    const outcome = elem.getAttribute(outcomeAtt);
+    const classOutcome = outcome + ' results-table-row';
+    const outcomeRows = document.getElementsByClassName(classOutcome);
+
+    for(let i = 0; i < outcomeRows.length; i++){
+        outcomeRows[i].hidden = !elem.checked;
+    }
+
+    const rows = findAll('.results-table-row').filter(isAllRowsHidden);
+    const allRowsHidden = rows.length == 0 ? true : false;
+    const notFoundMessage = document.getElementById('not-found-message');
+    notFoundMessage.hidden = !allRowsHidden;
+}
+</script>
+    <h1>pytest_report.html</h1>
+    <p>Report generated on 10-Sep-2022 at 18:32:47 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v3.1.1</p>
+    <h2>Environment</h2>
+    <table id="environment">
+      <tr>
+        <td>Base URL</td>
+        <td></td></tr>
+      <tr>
+        <td>Capabilities</td>
+        <td>{}</td></tr>
+      <tr>
+        <td>Driver</td>
+        <td>chrome</td></tr>
+      <tr>
+        <td>Packages</td>
+        <td>{"pluggy": "1.0.0", "py": "1.11.0", "pytest": "7.1.2"}</td></tr>
+      <tr>
+        <td>Platform</td>
+        <td>Linux-5.10.0-17-amd64-x86_64-with-glibc2.31</td></tr>
+      <tr>
+        <td>Plugins</td>
+        <td>{"base-url": "2.0.0", "cov": "2.8.1", "flask": "1.0.0", "html": "3.1.1", "metadata": "2.0.2", "mock": "3.0.0", "selenium": "1.17.0", "variables": "2.0.0"}</td></tr>
+      <tr>
+        <td>Python</td>
+        <td>3.9.2</td></tr></table>
+    <h2>Summary</h2>
+    <p>68 tests ran in 17.14 seconds. </p>
+    <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="passed">68 passed</span>, <input checked="true" class="filter" data-test-result="skipped" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="skipped">0 skipped</span>, <input checked="true" class="filter" data-test-result="failed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="failed">0 failed</span>, <input checked="true" class="filter" data-test-result="error" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="error">0 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
+    <h2>Results</h2>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable result initial-sort" col="result">Result</th>
+          <th class="sortable" col="name">Test</th>
+          <th class="sortable" col="duration">Duration</th>
+          <th class="sortable links" col="links">Links</th></tr>
+        <tr hidden="true" id="not-found-message">
+          <th colspan="4">No results found. Try to check the filters</th></tr></thead>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_display_club_with_competitions.py::TestIntegrationServerBookPlaceClass::test_display_club</td>
+          <td class="col-duration">0.01</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_book</td>
+          <td class="col-duration">0.02</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_book_with_club_ko_and_competition_ok</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_with_club_ko</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_with_competition_ko</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_more_than_available</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_more_than_points</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_more_than_twelve_points</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places_zero_place</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_book_places.py::TestIntegrationServerBookPlaceClass::test_purchase_places</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_display_clubs.py::TestIntegrationServerDisplayClubClass::test_show_summary_with_email_ok</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/integration/test_integration_server_display_clubs.py::TestIntegrationServerDisplayClubClass::test_show_summary_with_email_ko</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_server.py::test_is_in_the_past</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[25-11-11-1]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[25-11-0-3]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[25-64-0-12]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[5-24-12-0]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[5-24-0-5]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[5-14-0-00]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[5-14-0-01]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_max_place_for_booking[5-14-0-02]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[1-25-11-11-2050-10-22 13:30:00-expected0]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[3-25-11-0-2050-10-22 13:30:00-expected1]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[12-25-64-0-2050-10-22 13:30:00-expected2]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[0-5-24-12-2020-10-22 13:30:00-expected3]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[5-5-24-0-2050-10-22 13:30:00-expected4]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[0-5-14-0-2020-10-22 13:30:00-expected5]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[0-5-14-0-2020-10-22 13:30:00-expected6]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[0-5-14-0-2020-10-22 13:30:00-expected7]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[0-25-5-11-2025-10-22 13:30:00-expected8]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[4-25-25-0-2050-10-22 13:30:00-expected9]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[11-25-64-0-2050-10-22 13:30:00-expected10]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[4-25-14-0-2050-10-22 13:30:00-expected11]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[2-25-5-11-2050-10-22 13:30:00-expected12]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[6-25-5-0-2020-10-22 13:30:00-expected13]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[13-25-14-0-2020-10-22 13:30:00-expected14]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[1-5-14-12-2020-10-22 13:30:00-expected15]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[6-5-14-0-2020-10-22 13:30:00-expected16]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[1-5-14-0-2020-10-22 13:30:00-expected17]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[1-5-14-0-2020-10-22 13:30:00-expected18]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[1-5-14-0-2020-10-22 13:30:00-expected19]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_booking_is_allowed[4-5-14-0-2020-10-22 13:30:00-expected20]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_save_competition_table</td>
+          <td class="col-duration">0.01</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_save_club_table</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_save_booking_table</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_book_places.py::TestUnitServerBookPlacesClass::test_save_booking</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_unit_server_display_clubs.py::TestUnitServerDisplayClubClass::test_index</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestDatamanagerClass::test_init</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_init</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test__database_file_not_exist</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test__database_file_exist</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test__init_database_file</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_all</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_filter_first_element_is_dict</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_filter_first_elem_is_None</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_filter</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestTableClass::test_save</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestClubCompetitionClass::test_init</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestClubCompetitionClass::test_total_booked_places_per_competition_and_club</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestClubCompetitionClass::test_total_booked_places_per_club_all_competitions</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/unit/test_utils.py::TestClubCompetitionClass::test__calculate</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_book_places.py::TestFunctionnalServerDisplayClubClass::test_book</td>
+          <td class="col-duration">2.99</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/purchasePlaces" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_book_places.py::TestFunctionnalServerDisplayClubClass::test_book_to_many_places</td>
+          <td class="col-duration">1.86</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/purchasePlaces" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_to_many_places_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_book_places.py::TestFunctionnalServerDisplayClubClass::test_book_zero_place</td>
+          <td class="col-duration">1.86</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/purchasePlaces" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_book_places.py__TestFunctionnalServerDisplayClubClass__test_book_zero_place_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_display_clubs.py::TestFunctionnalServerDisplayClubClass::test_show_summary_with_known_email</td>
+          <td class="col-duration">1.96</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/showSummary" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_known_email_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_display_clubs.py::TestFunctionnalServerDisplayClubClass::test_show_summary_with_unknown_email</td>
+          <td class="col-duration">1.88</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_show_summary_with_unknown_email_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_display_clubs.py::TestFunctionnalServerDisplayClubClass::test_book_and_click_on_link</td>
+          <td class="col-duration">2.04</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/book/competition%20test2/test1" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs.py__TestFunctionnalServerDisplayClubClass__test_book_and_click_on_link_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/functionnal/test_display_clubs_with_competitions.py::TestFunctionnalServerDisplayClubClass::test_display_clb_with_competitions</td>
+          <td class="col-duration">1.93</td>
+          <td class="col-links"><a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_0_0.txt" target="_blank">Driver Log</a> <a class="url" href="data:," target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_3_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_4_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_5_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_6_0.txt" target="_blank">Driver Log</a> <a class="url" href="http://localhost:5002/display_clubs" target="_blank">URL</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_9_0.txt" target="_blank">HTML</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_10_0.txt" target="_blank">Browser Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_11_0.txt" target="_blank">Driver Log</a> <a class="text" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_12_0.txt" target="_blank">Driver Log</a> </td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_2_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_2_0.png"/></a></div>
+            <div class="image"><a class="image" href="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_8_0.png" target="_blank"><img src="assets/tests_functionnal_test_display_clubs_with_competitions.py__TestFunctionnalServerDisplayClubClass__test_display_clb_with_competitions_8_0.png"/></a></div>
+            <div class="empty log">No log output captured.</div></td></tr></tbody></table></body></html>
