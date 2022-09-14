@@ -17,13 +17,13 @@ from utils import DataManager, Table, ClubCompetition
 
 
 class TestDatamanagerClass:
-    def test_init(self, app_test, mocker):
+    def test_init(self, app, mocker):
         mocker.patch("utils.DataManager.TableName", TableNameMocker)
-        data_manager = DataManager(app_test)
+        data_manager = DataManager(app)
         assert len(data_manager.tables) == 3
         assert isinstance(data_manager.tables[TableNameMocker.CLUBS], Table)
         assert data_manager.tables[TableNameMocker.CLUBS].name == "clubs"
-        assert data_manager.app.config["DB_PATH"] == app_test.config["DB_PATH"]
+        assert data_manager.app.config["DB_PATH"] == app.config["DB_PATH"]
 
 
 class TestTableClass:
