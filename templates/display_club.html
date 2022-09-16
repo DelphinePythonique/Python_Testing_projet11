@@ -5,7 +5,10 @@
     <title>Clubs| GUDLFT</title>
 </head>
 <body>
-
+          <ul>
+              <li><a href="{{url_for('index')}}">HomePage</a></li>
+              <li><a href="{{url_for('logout')}}">Logout</a></li>
+          </ul>
     {% with messages = get_flashed_messages()%}
     {% if messages %}
         <ul>

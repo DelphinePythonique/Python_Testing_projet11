@@ -5,7 +5,11 @@
     <title>Summary | GUDLFT Registration</title>
 </head>
 <body>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
+        <h2>Welcome, {{club['email']}} </h2>
+          <ul>
+              <li><a href="{{url_for('index')}}">HomePage</a></li>
+              <li><a href="{{url_for('logout')}}">Logout</a></li>
+          </ul>
 
     {% with messages = get_flashed_messages()%}
     {% if messages %}

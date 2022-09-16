@@ -122,14 +122,34 @@ def max_place_for_booking(
         return 0
 
 
+@app.route("/login", methods=["POST"])
+def login():
+    email = request.form["email"]
+    data_manager = DataManager(app)
+
+    club_selected = data_manager.tables[
+        data_manager.TableName.CLUBS
+    ].filter_first_element({"email": email})
+
+    if club_selected:
+        session["username"] = email
+        flash("congratulation you are connected")
+    else:
+        flash("email not existing")
+
+    return redirect(url_for("index"))
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
-@app.route("/showSummary", methods=["POST"])
+@app.route("/showSummary")
 def showSummary():
-    email = request.form["email"]
+    if "username" not in session:
+        return redirect(url_for("index"))
+    email = session['username']
     data_manager = DataManager(app)
     competitions_ = data_manager.tables[data_manager.TableName.COMPETITIONS].all()
     club_selected = data_manager.tables[
@@ -137,7 +157,7 @@ def showSummary():
     ].filter_first_element({"email": email})
 
     if club_selected:
-        session["username"] = email
+
         return render_template(
             "welcome.html", club=club_selected, competitions=competitions_
         )
@@ -237,4 +257,6 @@ def display_clubs():
 
 @app.route("/logout")
 def logout():
+    if "username" in session:
+        del session['username']
     return redirect(url_for("index"))

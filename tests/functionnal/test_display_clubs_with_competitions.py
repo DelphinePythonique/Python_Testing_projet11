@@ -12,7 +12,7 @@ class TestFunctionnalServerDisplayClubClass:
         refresh_datafiles()
 
     @pytest.mark.nondestructive
-    def test_display_clb_with_competitions(self, live_server, selenium):
+    def test_display_club_with_competitions(self, live_server, selenium):
         selenium.get("http://localhost:5002")
         assert "GUDLFT Registration" in selenium.title
 
@@ -20,7 +20,6 @@ class TestFunctionnalServerDisplayClubClass:
         email_input.clear()
         email_input.send_keys(EMAIL_OK)
         email_input.send_keys(Keys.RETURN)
-        assert "Summary | GUDLFT Registration" in selenium.title
 
         selenium.get("http://localhost:5002/display_clubs")
         assert "Clubs| GUDLFT" in selenium.title

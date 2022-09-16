@@ -1,9 +1,7 @@
 import enum
 
 import pytest
-
-
-from server import app as myapp
+from  server import app as myapp
 
 DATABASE_DIRECTORY_FOR_TEST = "database/test/"
 COMPETITIONS_TABLE = "competitions"
@@ -22,8 +20,7 @@ QUANTITY_POINTS_SUP_AVAILABLE = 14
 
 
 @pytest.fixture
-def client():
-    app = myapp
+def client(app):
     with app.test_client() as client:
         yield client
 
@@ -134,17 +131,18 @@ class TableNameMocker(enum.Enum):
     BOOKINGS = "bookings"
 
 
-class DataManagerMocker:
+class DataManagerMocker():
     class TableName(enum.Enum):
         CLUBS = "clubs"
         COMPETITIONS = "competitions"
         BOOKINGS = "bookings"
 
+
+
+
     @property
     def app(self):
-
-        app = myapp
-        return app
+        return myapp
 
 
 def refresh_datafiles():

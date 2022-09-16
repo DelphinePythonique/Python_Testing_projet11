@@ -1,0 +1,34 @@
+{
+    "bookings": [
+        {
+            "club": "test1",
+            "competition": "competition test2",
+            "booked_places": 2
+        },
+        {
+            "club": "test1",
+            "competition": "competition test2",
+            "booked_places": 1
+        },
+        {
+            "club": "test1",
+            "competition": "competition test2",
+            "booked_places": 2
+        },
+        {
+            "club": "test2",
+            "competition": "competition test2",
+            "booked_places": 5
+        },
+        {
+            "club": "test1",
+            "competition": "competition test2",
+            "booked_places": 2
+        },
+        {
+            "club": "test1",
+            "competition": "competition test1",
+            "booked_places": 2
+        }
+    ]
+}

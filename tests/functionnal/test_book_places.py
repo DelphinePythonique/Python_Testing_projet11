@@ -25,8 +25,10 @@ class TestFunctionnalServerDisplayClubClass:
         email_input.clear()
         email_input.send_keys(QUANTITY_PLACES_OK)
         email_input.send_keys(Keys.RETURN)
+
+        li = selenium.find_elements(By.TAG_NAME, "li")
         assert (
-            "Great-booking complete!" in selenium.find_element(By.TAG_NAME, "li").text
+            "Great-booking complete!" in li[2].text
         )
 
     @pytest.mark.nondestructive

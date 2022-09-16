@@ -14,12 +14,23 @@
                 {% endfor %}
                </ul>
             {% endif%}
-    Please enter your secretary email to continue:
-    <form action="showSummary" method="post">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
-        <button type="submit">Enter</button>
-    </form>
+
+       {% if not 'username' in session %}
+               Please enter your secretary email to continue:
+                <form action="login" method="post">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id=""/>
+                    <button type="submit">Enter</button>
+                </form>
+        {% else %}
+           <h2>Welcome {{ session['username'] }}!</h2>
+           <ul>
+            <li><a href="{{url_for('logout')}}">Logout</a></li>
+            <li><a href="{{url_for('showSummary')}}">Show summary</a></li>
+            <li><a href="{{url_for('display_clubs')}}">Display clubs</a></li>
+           </ul>
+
+        {% endif %}
   {%endwith%}
 </body>
 </html>
